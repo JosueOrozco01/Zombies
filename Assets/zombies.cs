@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Zombie1 : MonoBehaviour
+public class Zombies : MonoBehaviour
 {
     Rigidbody2D rb;
     CircleCollider2D circle;
