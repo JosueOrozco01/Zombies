@@ -10,7 +10,7 @@ public class personaje : MonoBehaviour
     public float fuerzaSalto;
     public bool enPiso;
     public Transform refPie;
-    public float velX = 20f;
+    public float velX = 10f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
