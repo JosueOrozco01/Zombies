@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -11,39 +12,61 @@ public class personaje : MonoBehaviour
     public bool enPiso;
     public Transform refPie;
     public float velX = 10f;
+    public Transform contArma;
+    bool tieneArma;
+    public Transform mira;
+    public Transform refManoArma;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+
+        // Ocultar la mira al inicio
+        mira.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        // movernos horizontalmente
         float movX;
         movX = Input.GetAxis("Horizontal");
         anim.SetFloat("absMovX", Mathf.Abs(movX));
         rb.linearVelocity = new Vector2(velX * movX, rb.linearVelocity.y);
 
+        // detecccion si estamos en el piso 
         enPiso = Physics2D.OverlapCircle(refPie.position, 1f, 1 << 6); // Cuando el pie esta cerca del suelo
         anim.SetBool("enPiso", enPiso);
 
+        // saltar
         if (Input.GetButtonDown("Jump") && enPiso)
         {
             rb.AddForce(new Vector2(0, fuerzaSalto), ForceMode2D.Impulse);
         }
 
-
         // Girar el personaje
-        if (movX < 0)
+        if (tieneArma)
         {
-            transform.localScale = new Vector3(-0.5f, 0.5f, 0.5f);
+            if (mira.transform.position.x < transform.position.x) transform.localScale = new Vector3(-0.5f, 0.5f, 0.5f);
+            if (mira.transform.position.x > transform.position.x) transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         }
-        if (movX > 0)
+        else
         {
-            transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            if (movX < 0) transform.localScale = new Vector3(-0.5f, 0.5f, 0.5f);
+            if (movX > 0) transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        }
+
+        //detectar el mouse y colocar ahi la mira
+        if (tieneArma) 
+        {
+            mira.position = Camera.main.ScreenToWorldPoint(new Vector3(
+                Input.mousePosition.x,
+                Input.mousePosition.y,
+                -Camera.main.transform.position.z));
+
+            refManoArma.position = mira.position;
         }
     }
 
@@ -54,5 +77,19 @@ public class personaje : MonoBehaviour
         Vector3 dondeQuieroIr = transform.position + new Vector3(0, 0, -20);
 
         Camera.main.transform.position = Vector3.Lerp(dondeEstoy, dondeQuieroIr, 0.5f);
+    }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("arma"))
+        {
+            tieneArma = true;
+            Destroy(collision.gameObject);
+            contArma.gameObject.SetActive(true);
+
+            // Mostrar la mira ahora que tenemos arma
+            mira.gameObject.SetActive(true);
+        }
     }
 }
