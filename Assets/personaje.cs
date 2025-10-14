@@ -16,6 +16,8 @@ public class personaje : MonoBehaviour
     bool tieneArma;
     public Transform mira;
     public Transform refManoArma;
+    public Transform refOjos;
+    public Transform refCabeza;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -58,15 +60,17 @@ public class personaje : MonoBehaviour
             if (movX > 0) transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         }
 
-        //detectar el mouse y colocar ahi la mira
-        if (tieneArma) 
+        if (tieneArma)
         {
+            //detectar el mouse y colocar ahi la mira
             mira.position = Camera.main.ScreenToWorldPoint(new Vector3(
                 Input.mousePosition.x,
                 Input.mousePosition.y,
                 -Camera.main.transform.position.z));
 
             refManoArma.position = mira.position;
+
+            if (Input.GetButtonDown("Fire1")) disparar();
         }
     }
 
@@ -77,6 +81,32 @@ public class personaje : MonoBehaviour
         Vector3 dondeQuieroIr = transform.position + new Vector3(0, 0, -20);
 
         Camera.main.transform.position = Vector3.Lerp(dondeEstoy, dondeQuieroIr, 0.5f);
+    }
+
+    private void LateUpdate()
+    {
+        if (tieneArma)
+        {
+            // que la mano apunte a la mira
+            refCabeza.up = refOjos.position - mira.position;
+
+            // que el arma tambien mire el mouse 
+            contArma.up = contArma.position - mira.position;
+        }
+    }
+
+    void disparar()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(contArma.position, (mira.position - contArma.position).normalized, 100f, ~(1 << 8));
+       if (hit.collider != null)
+        {
+            // le dio a algo
+            if (hit.collider.gameObject.CompareTag("zombie"))
+            {
+                // le dio a a un zombie
+                Destroy(hit.collider.gameObject);
+            } 
+        }
     }
 
 
