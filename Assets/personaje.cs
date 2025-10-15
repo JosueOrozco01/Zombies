@@ -18,6 +18,9 @@ public class personaje : MonoBehaviour
     public Transform refManoArma;
     public Transform refOjos;
     public Transform refCabeza;
+    public float magnitudPateoArma = 300f;
+    public Transform refPuntaArma;
+    public GameObject particulasArma;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -97,7 +100,14 @@ public class personaje : MonoBehaviour
 
     void disparar()
     {
-        RaycastHit2D hit = Physics2D.Raycast(contArma.position, (mira.position - contArma.position).normalized, 100f, ~(1 << 8));
+        Vector3 direccion = (mira.position - contArma.position).normalized;
+
+        // 1 arma patea 
+        rb.AddForce(magnitudPateoArma * -direccion, ForceMode2D.Impulse);
+
+        // 2 particulas
+        Instantiate(particulasArma, refPuntaArma.position, Quaternion.identity);
+        RaycastHit2D hit = Physics2D.Raycast(contArma.position, direccion, 100f, ~(1 << 10));
        if (hit.collider != null)
         {
             // le dio a algo
