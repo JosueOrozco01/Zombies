@@ -9,7 +9,8 @@ public class Zombies : MonoBehaviour
     
     public float velCaminata = 10f;
     float direccion = 1f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public float umbralVelicidad;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -23,16 +24,29 @@ public class Zombies : MonoBehaviour
         limiteCaminataDer = centro + radioEscalado;
     }
 
-    // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(velCaminata * direccion, rb.linearVelocity.y);
+        if (rb.linearVelocity.magnitude < umbralVelicidad)
+        {
+            // Movimiento del zombie
+            rb.linearVelocity = new Vector2(velCaminata * direccion, rb.linearVelocity.y);
 
-    if (transform.position.x <= limiteCaminataIzq)
-        direccion = 1f;
-    else if (transform.position.x >= limiteCaminataDer)
-        direccion = -1f;
+            // Cambio de dirección al alcanzar los límites
+            if (transform.position.x <= limiteCaminataIzq)
+                direccion = 1f;
+            else if (transform.position.x >= limiteCaminataDer)
+                direccion = -1f;
 
-    transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * direccion, transform.localScale.y, transform.localScale.z);
+            // Ajusta la escala para girar el sprite
+            Vector3 escala = transform.localScale;
+            escala.x = Mathf.Abs(escala.x) * Mathf.Sign(direccion);
+            transform.localScale = escala;
+        }
+    }
+
+    public void muere()
+    {
+        Destroy(gameObject);
     }
 }
+    

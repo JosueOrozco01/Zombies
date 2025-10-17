@@ -22,6 +22,13 @@ public class personaje : MonoBehaviour
     public Transform refPuntaArma;
     public GameObject particulasArma;
 
+    // sacudir camara
+    public Transform camaraSacudir;
+    float magnitudSacudida;
+
+    public float magnitudReaccionDisparo = 300f;
+    public GameObject particulasSangreVerde;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -79,6 +86,7 @@ public class personaje : MonoBehaviour
 
     private void FixedUpdate()
     {
+
         // Movimiento de camara
         Vector3 dondeEstoy = Camera.main.transform.position;
         Vector3 dondeQuieroIr = transform.position + new Vector3(0, 0, -20);
@@ -88,34 +96,74 @@ public class personaje : MonoBehaviour
 
     private void LateUpdate()
     {
+        // Efecto de sacudida en la cámara hija
+        if (magnitudSacudida > 0.05f)
+        {
+            // Movimiento aleatorio suave en rotación y posición
+            camaraSacudir.localRotation = Quaternion.Euler(
+                Random.Range(-magnitudSacudida * 2f, magnitudSacudida * 2f),
+                Random.Range(-magnitudSacudida * 2f, magnitudSacudida * 2f),
+                Random.Range(-magnitudSacudida * 2f, magnitudSacudida * 2f)
+            );
+
+            camaraSacudir.localPosition = new Vector3(
+                Random.Range(-magnitudSacudida * 0.05f, magnitudSacudida * 0.05f),
+                Random.Range(-magnitudSacudida * 0.05f, magnitudSacudida * 0.05f),
+                camaraSacudir.localPosition.z
+            );
+
+            // Disminuye más lentamente
+            magnitudSacudida *= 0.93f;
+        }
+        else
+        {
+            camaraSacudir.localRotation = Quaternion.identity;
+            camaraSacudir.localPosition = new Vector3(0, 0, camaraSacudir.localPosition.z);
+        }
+
         if (tieneArma)
         {
-            // que la mano apunte a la mira
+            // que la cabeza apunte a la mira
             refCabeza.up = refOjos.position - mira.position;
 
-            // que el arma tambien mire el mouse 
+            // que el arma mire el mouse
             contArma.up = contArma.position - mira.position;
         }
     }
-
+        
     void disparar()
-    {
-        Vector3 direccion = (mira.position - contArma.position).normalized;
-
-        // 1 arma patea 
-        rb.AddForce(magnitudPateoArma * -direccion, ForceMode2D.Impulse);
-
-        // 2 particulas
-        Instantiate(particulasArma, refPuntaArma.position, Quaternion.identity);
-        RaycastHit2D hit = Physics2D.Raycast(contArma.position, direccion, 100f, ~(1 << 10));
-       if (hit.collider != null)
         {
-            // le dio a algo
-            if (hit.collider.gameObject.CompareTag("zombie"))
+            Vector3 direccion = (mira.position - contArma.position).normalized;
+
+            // Reducir el efecto de retroceso vertical
+            Vector3 direccionRetroceso = -direccion;
+            direccionRetroceso.y *= 0.2f; // 🔹 solo 20% de retroceso vertical
+
+            rb.AddForce(magnitudPateoArma * direccionRetroceso, ForceMode2D.Impulse);
+
+            // 2 partículas
+            Instantiate(particulasArma, refPuntaArma.position, Quaternion.identity);
+
+            // 3 sacudir cámara
+            sacudirCamara(1.5f);
+
+        RaycastHit2D hit = Physics2D.Raycast(contArma.position, direccion, 100f, ~(1 << 10));
+        if (hit.collider != null)
+        {
+            if (hit.collider.CompareTag("zombie"))
             {
-                // le dio a a un zombie
-                Destroy(hit.collider.gameObject);
-            } 
+                //le dio al cuerpo de un zombie 
+                // 1 impulso
+                hit.rigidbody.AddForce(magnitudReaccionDisparo * direccion, ForceMode2D.Impulse);
+
+                // 2 partículas
+                Instantiate(particulasSangreVerde, hit.point, Quaternion.identity);
+            }
+            if (hit.collider.CompareTag("cabezaZombie"))
+            {
+                //Le dio a la cabeza de un zombie! Muere Malidto
+                hit.transform.GetComponent<Zombies>().muere(); 
+            }
         }
     }
 
@@ -124,6 +172,7 @@ public class personaje : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("arma"))
         {
+            // agarrar el arma
             tieneArma = true;
             Destroy(collision.gameObject);
             contArma.gameObject.SetActive(true);
@@ -132,4 +181,12 @@ public class personaje : MonoBehaviour
             mira.gameObject.SetActive(true);
         }
     }
+
+    void sacudirCamara(float maximo)
+    {
+        magnitudSacudida = maximo;
+    }
+
+
+
 }
