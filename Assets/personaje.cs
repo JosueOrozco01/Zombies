@@ -28,6 +28,7 @@ public class personaje : MonoBehaviour
 
     public float magnitudReaccionDisparo = 300f;
     public GameObject particulasSangreVerde;
+    public GameObject particulasMuchaSangreVerde;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -132,41 +133,55 @@ public class personaje : MonoBehaviour
     }
         
     void disparar()
+    {
+        Vector3 direccion = (mira.position - contArma.position).normalized;
+
+        // Retroceso del arma
+        Vector3 direccionRetroceso = -direccion;
+        direccionRetroceso.y *= 0.2f; 
+        rb.AddForce(magnitudPateoArma * direccionRetroceso, ForceMode2D.Impulse);
+
+        // Partículas del arma (se destruyen automáticamente después de 2s)
+        GameObject particulaArma = Instantiate(particulasArma, refPuntaArma.position, Quaternion.identity);
+        Destroy(particulaArma, 2f);
+
+        // Sacudir cámara
+        sacudirCamara(1.5f);
+
+        // Raycast para detectar todo lo que toque
+        RaycastHit2D[] hits = Physics2D.RaycastAll(contArma.position, direccion, 100f, ~(1 << 8));
+        
+        foreach (var hit in hits)
         {
-            Vector3 direccion = (mira.position - contArma.position).normalized;
-
-            // Reducir el efecto de retroceso vertical
-            Vector3 direccionRetroceso = -direccion;
-            direccionRetroceso.y *= 0.2f; // 🔹 solo 20% de retroceso vertical
-
-            rb.AddForce(magnitudPateoArma * direccionRetroceso, ForceMode2D.Impulse);
-
-            // 2 partículas
-            Instantiate(particulasArma, refPuntaArma.position, Quaternion.identity);
-
-            // 3 sacudir cámara
-            sacudirCamara(1.5f);
-
-        RaycastHit2D hit = Physics2D.Raycast(contArma.position, direccion, 100f, ~(1 << 10));
-        if (hit.collider != null)
-        {
-            if (hit.collider.CompareTag("zombie"))
+            if (hit.collider != null)
             {
-                //le dio al cuerpo de un zombie 
-                // 1 impulso
-                hit.rigidbody.AddForce(magnitudReaccionDisparo * direccion, ForceMode2D.Impulse);
+                if (hit.collider.CompareTag("cabezaZombie"))
+                {
+                    // Matar zombie al golpear la cabeza
+                    zombies z = hit.transform.GetComponentInParent<zombies>();
+                    if (z != null)
+                    {
+                        z.muere(direccion);
 
-                // 2 partículas
-                Instantiate(particulasSangreVerde, hit.point, Quaternion.identity);
-            }
-            if (hit.collider.CompareTag("cabezaZombie"))
-            {
-                //Le dio a la cabeza de un zombie! Muere Malidto
-                hit.transform.GetComponent<Zombies>().muere(); 
+                        // Partículas de sangre verde
+                        GameObject particulaSangre = Instantiate(particulasMuchaSangreVerde, hit.point, Quaternion.identity);
+                        Destroy(particulaSangre, 2f);
+
+                        break; // Detenemos el loop, ya mató al zombie
+                    }
+                }
+                else if (hit.collider.CompareTag("zombie"))
+                {
+                    // Solo golpe al cuerpo, sin matar
+                    if (hit.rigidbody != null)
+                        hit.rigidbody.AddForce(magnitudReaccionDisparo * direccion, ForceMode2D.Impulse);
+
+                    GameObject particulaSangre = Instantiate(particulasSangreVerde, hit.point, Quaternion.identity);
+                    Destroy(particulaSangre, 2f);
+                }
             }
         }
     }
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

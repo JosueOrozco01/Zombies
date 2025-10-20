@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Zombies : MonoBehaviour
+public class zombies : MonoBehaviour
 {
     Rigidbody2D rb;
     CircleCollider2D circle;
@@ -10,6 +10,8 @@ public class Zombies : MonoBehaviour
     public float velCaminata = 10f;
     float direccion = 1f;
     public float umbralVelicidad;
+    public GameObject prefabMuerto;
+    public float magnitudVueloCabeza = 300f;
 
     void Start()
     {
@@ -44,8 +46,14 @@ public class Zombies : MonoBehaviour
         }
     }
 
-    public void muere()
+    public void muere(Vector3 direccion)
     {
+        GameObject instMuerto = Instantiate(prefabMuerto, transform.position, transform.rotation);
+
+        instMuerto.transform.GetChild(0).GetComponent<Rigidbody2D>().AddForce(direccion * magnitudVueloCabeza, ForceMode2D.Impulse);
+        instMuerto.transform.GetChild(1).GetComponent<Rigidbody2D>().AddForce(direccion * magnitudVueloCabeza/2, ForceMode2D.Impulse);
+        instMuerto.transform.GetChild(0).GetComponent<Rigidbody2D>().AddTorque(10f, ForceMode2D.Impulse);
+        instMuerto.transform.GetChild(1).GetComponent<Rigidbody2D>().AddTorque(10f, ForceMode2D.Impulse);
         Destroy(gameObject);
     }
 }
