@@ -202,6 +202,9 @@ public class personaje : MonoBehaviour
         magnitudSacudida = maximo;
     }
 
-
+    public void RecibirMordida()
+    {
+            Debug.Log("auch!");
+    }
 
 }

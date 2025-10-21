@@ -22,6 +22,7 @@ public class zombies : MonoBehaviour
     float distanciaShaggy;
     public Transform Shaggy;
     Animator anim;
+    bool mordidaEsValida = false;
 
     void Start()
     {
@@ -113,10 +114,10 @@ public class zombies : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") && comportamiento == tipoComportamientoZombie.ataque)
         {
-            Destroy(collision.gameObject);
+            Shaggy.GetComponent<personaje>().RecibirMordida();
         }
     }
-    
+
     public void muere(Vector3 direccion)
     {
         GameObject instMuerto = Instantiate(prefabMuerto, transform.position, transform.rotation);
@@ -126,6 +127,16 @@ public class zombies : MonoBehaviour
         instMuerto.transform.GetChild(0).GetComponent<Rigidbody2D>().AddTorque(10f, ForceMode2D.Impulse);
         instMuerto.transform.GetChild(1).GetComponent<Rigidbody2D>().AddTorque(10f, ForceMode2D.Impulse);
         Destroy(gameObject);
+    }
+
+    public void mordidaValida_inicio()
+    {
+        mordidaEsValida = true;
+    }
+    
+    public void mordidaValida_fin()
+    {
+        mordidaEsValida = false;
     }
 }
     
