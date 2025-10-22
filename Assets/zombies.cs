@@ -88,6 +88,8 @@ public class zombies : MonoBehaviour
 
                 case tipoComportamientoZombie.ataque:
                     {
+                        anim.SetTrigger("atacar");
+                        
                         // Cambio de dirección segun la posicion de shaggy
                         if (Shaggy.position.x > transform.position.x)
                             direccion = 1f;
@@ -98,7 +100,11 @@ public class zombies : MonoBehaviour
                         anim.speed = 1f;
 
                         // entrar en zona de ataque
-                        if (distanciaShaggy > distaciaAtaque) comportamiento = tipoComportamientoZombie.persecucion;
+                        if (distanciaShaggy > distaciaAtaque)
+                        {
+                            comportamiento = tipoComportamientoZombie.persecucion;
+                            anim.ResetTrigger("atacar");
+                        }
                     }
                     break;
             }
