@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
+
 
 public class personaje : MonoBehaviour
 {
@@ -32,6 +29,13 @@ public class personaje : MonoBehaviour
 
     public GameObject particulasSanngreShaggy;
 
+    // energia
+    int energiaMax = 5;
+    int energiaActual;
+
+    public UnityEngine.UI.Image mascaraDaño;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -40,6 +44,7 @@ public class personaje : MonoBehaviour
 
         // Ocultar la mira al inicio
         mira.gameObject.SetActive(false);
+        energiaActual = energiaMax;
     }
 
     // Update is called once per frame
@@ -85,6 +90,10 @@ public class personaje : MonoBehaviour
 
             if (Input.GetButtonDown("Fire1")) disparar();
         }
+
+        float valorAlfa = 1f / energiaMax * (energiaMax - energiaActual);
+        mascaraDaño.color = new Color(1f,1f,1f, valorAlfa);
+
     }
 
     private void FixedUpdate()
@@ -206,12 +215,25 @@ public class personaje : MonoBehaviour
 
     public void RecibirMordida(Vector2 posicion)
     {
-        Debug.Log("auch!");
+        //reducir la energia
+        energiaActual -= 1;
 
-        // Partículas de sangre en Shaggy
-        Instantiate(particulasSanngreShaggy, posicion, Quaternion.identity);
+        if (energiaActual <= 0)
+        {
+            Debug.Log("Adios mundo cruel");
+            Destroy(gameObject);
+        }
+        else
+        {
+            Debug.Log("auch! Ahora tengo" + energiaActual + "de" + energiaMax);
 
-        // Disparar la animacion 
-        anim.SetTrigger("auch");
+            // Partículas de sangre en Shaggy
+            Instantiate(particulasSanngreShaggy, posicion, Quaternion.identity);
+
+            // Disparar la animacion 
+            anim.SetTrigger("auch");
+        }
+
+
     }
 }
