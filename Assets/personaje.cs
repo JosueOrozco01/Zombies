@@ -1,5 +1,6 @@
 using Unity.Mathematics.Geometry;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class personaje : MonoBehaviour
@@ -37,6 +38,9 @@ public class personaje : MonoBehaviour
     public TMPro.TextMeshProUGUI textoEnergia;
     public UnityEngine.UI.Image barraLlena;
 
+    //muerte
+    public UnityEngine.UI.Image telaNegra;
+    float valorAlfaDeseadoTelaNegra;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -47,11 +51,16 @@ public class personaje : MonoBehaviour
         // Ocultar la mira al inicio
         mira.gameObject.SetActive(false);
         energiaActual = energiaMax;
+
+        // fade in inicial
+        telaNegra.color = new Color(0, 0, 0, 1); // negro
+        valorAlfaDeseadoTelaNegra = 0; // transparente
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (energiaActual <= 0) return;
         // movernos horizontalmente
         float movX;
         movX = Input.GetAxis("Horizontal");
@@ -92,11 +101,6 @@ public class personaje : MonoBehaviour
 
             if (Input.GetButtonDown("Fire1")) disparar();
         }
-
-        actualizarDisplay();
-
-        if (Input.GetKeyDown(KeyCode.P)) anim.SetTrigger("muere");
-
     }
 
     void actualizarDisplay()
@@ -113,20 +117,30 @@ public class personaje : MonoBehaviour
         if (valorDeseado == 0) barraLlena.fillAmount = 0;
         barraLlena.fillAmount = Mathf.Lerp(barraLlena.fillAmount, valorDeseado, 0.1f);
 
+
     }
 
     private void FixedUpdate()
     {
-
         // Movimiento de camara
         Vector3 dondeEstoy = Camera.main.transform.position;
         Vector3 dondeQuieroIr = transform.position + new Vector3(0, 0, -20);
 
         Camera.main.transform.position = Vector3.Lerp(dondeEstoy, dondeQuieroIr, 0.5f);
+
+        actualizarDisplay();
+
+        // manejar la tela negra
+        float valorAlfa = Mathf.Lerp(telaNegra.color.a, valorAlfaDeseadoTelaNegra, 0.05f);
+        telaNegra.color = new Color(0, 0, 0, valorAlfa);
+
+        // reiniciar escena cuando se complete fade out 
+        if (valorAlfa > 0.9f &&  valorAlfaDeseadoTelaNegra == 1) SceneManager.LoadScene("Scenes/Escena");
     }
 
     private void LateUpdate()
     {
+        if (energiaActual <= 0) return;
         // Efecto de sacudida en la cámara hija
         if (magnitudSacudida > 0.05f)
         {
@@ -234,6 +248,8 @@ public class personaje : MonoBehaviour
 
     public void RecibirMordida(Vector2 posicion)
     {
+        if (energiaActual <= 0) return;
+
         //reducir la energia
         energiaActual -= 1;
 
@@ -248,7 +264,7 @@ public class personaje : MonoBehaviour
         }
         else
         {
-            Debug.Log("auch! Ahora tengo" + energiaActual + "de" + energiaMax);
+            Debug.Log("auch! Ahora tengo" + energiaActual + " de " + energiaMax);
 
             // Partículas de sangre en Shaggy
             Instantiate(particulasSanngreShaggy, posicion, Quaternion.identity);
@@ -256,7 +272,10 @@ public class personaje : MonoBehaviour
             // Disparar la animacion 
             anim.SetTrigger("auch");
         }
+    }
 
-
+    public void iniciarFadeOut()
+    {
+        valorAlfaDeseadoTelaNegra = 1; // fade out
     }
 }
