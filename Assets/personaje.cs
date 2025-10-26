@@ -1,3 +1,4 @@
+using Unity.Mathematics.Geometry;
 using UnityEngine;
 
 
@@ -28,12 +29,13 @@ public class personaje : MonoBehaviour
     public GameObject particulasMuchaSangreVerde;
 
     public GameObject particulasSanngreShaggy;
+    public UnityEngine.UI.Image mascaraDaño;
 
     // energia
     int energiaMax = 5;
     int energiaActual;
-
-    public UnityEngine.UI.Image mascaraDaño;
+    public TMPro.TextMeshProUGUI textoEnergia;
+    public UnityEngine.UI.Image barraLlena;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -91,8 +93,25 @@ public class personaje : MonoBehaviour
             if (Input.GetButtonDown("Fire1")) disparar();
         }
 
+        actualizarDisplay();
+
+        if (Input.GetKeyDown(KeyCode.P)) anim.SetTrigger("muere");
+
+    }
+
+    void actualizarDisplay()
+    {
+        // mascara roja de daño
         float valorAlfa = 1f / energiaMax * (energiaMax - energiaActual);
-        mascaraDaño.color = new Color(1f,1f,1f, valorAlfa);
+        mascaraDaño.color = new Color(1f, 1f, 1f, valorAlfa);
+
+        // metodo 1: texto
+        textoEnergia.text = energiaActual.ToString();
+
+        // metodo 2: barra
+        float valorDeseado = (float)energiaActual / energiaMax;
+        if (valorDeseado == 0) barraLlena.fillAmount = 0;
+        barraLlena.fillAmount = Mathf.Lerp(barraLlena.fillAmount, valorDeseado, 0.1f);
 
     }
 
@@ -221,7 +240,11 @@ public class personaje : MonoBehaviour
         if (energiaActual <= 0)
         {
             Debug.Log("Adios mundo cruel");
-            Destroy(gameObject);
+            actualizarDisplay();
+            // Destroy(gameObject);
+
+            // comienza el proceso de la muerte 
+            anim.SetTrigger("muere");
         }
         else
         {
