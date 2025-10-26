@@ -116,10 +116,11 @@ public class zombies : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player") && comportamiento == tipoComportamientoZombie.ataque)
+        if (collision.gameObject.CompareTag("Player") && mordidaEsValida)
         {
+            mordidaEsValida = false;
             Shaggy.GetComponent<personaje>().RecibirMordida();
         }
     }

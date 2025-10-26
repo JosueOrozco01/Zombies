@@ -204,7 +204,6 @@ public class personaje : MonoBehaviour
 
     public void RecibirMordida()
     {
-            Debug.Log("auch!");
+     Debug.Log("auch!");
     }
-
 }
