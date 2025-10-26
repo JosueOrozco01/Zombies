@@ -8,7 +8,7 @@ public class zombies : MonoBehaviour
     CircleCollider2D circle;
     float limiteCaminataIzq;
     float limiteCaminataDer;
-    
+
     public float velCaminata = 10f;
     float direccion = 1f;
     public float umbralVelicidad;
@@ -22,7 +22,8 @@ public class zombies : MonoBehaviour
     float distanciaShaggy;
     public Transform Shaggy;
     Animator anim;
-    bool mordidaEsValida = false;
+    bool mordidaEsValida = false; 
+
 
     void Start()
     {
@@ -121,7 +122,7 @@ public class zombies : MonoBehaviour
         if (collision.gameObject.CompareTag("Player") && mordidaEsValida)
         {
             mordidaEsValida = false;
-            Shaggy.GetComponent<personaje>().RecibirMordida();
+            Shaggy.GetComponent<personaje>().RecibirMordida(collision.contacts[0].point);
         }
     }
 

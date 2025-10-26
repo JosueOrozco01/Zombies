@@ -30,6 +30,8 @@ public class personaje : MonoBehaviour
     public GameObject particulasSangreVerde;
     public GameObject particulasMuchaSangreVerde;
 
+    public GameObject particulasSanngreShaggy;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -202,8 +204,14 @@ public class personaje : MonoBehaviour
         magnitudSacudida = maximo;
     }
 
-    public void RecibirMordida()
+    public void RecibirMordida(Vector2 posicion)
     {
-     Debug.Log("auch!");
+        Debug.Log("auch!");
+
+        // Partículas de sangre en Shaggy
+        Instantiate(particulasSanngreShaggy, posicion, Quaternion.identity);
+
+        // Disparar la animacion 
+        anim.SetTrigger("auch");
     }
 }
