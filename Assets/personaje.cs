@@ -55,6 +55,9 @@ public class personaje : MonoBehaviour
         // fade in inicial
         telaNegra.color = new Color(0, 0, 0, 1); // negro
         valorAlfaDeseadoTelaNegra = 0; // transparente
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined; // o Locked según el juego
     }
 
     // Update is called once per frame
@@ -91,15 +94,21 @@ public class personaje : MonoBehaviour
 
         if (tieneArma)
         {
-            //detectar el mouse y colocar ahi la mira
-            mira.position = Camera.main.ScreenToWorldPoint(new Vector3(
-                Input.mousePosition.x,
-                Input.mousePosition.y,
-                -Camera.main.transform.position.z));
+            // Convertir posición del mouse a coordenadas del mundo
+            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mouseWorld.z = 0f; // evita vibración por profundidad
 
+            // Posicionar mira
+            mira.position = mouseWorld;
+
+            // La mano sigue a la mira
             refManoArma.position = mira.position;
 
-            if (Input.GetButtonDown("Fire1")) disparar();
+            // Disparo
+            if (Input.GetButtonDown("Fire1"))
+            {
+                disparar();
+            }
         }
     }
 
@@ -141,10 +150,10 @@ public class personaje : MonoBehaviour
     private void LateUpdate()
     {
         if (energiaActual <= 0) return;
+
         // Efecto de sacudida en la cámara hija
         if (magnitudSacudida > 0.05f)
         {
-            // Movimiento aleatorio suave en rotación y posición
             camaraSacudir.localRotation = Quaternion.Euler(
                 Random.Range(-magnitudSacudida * 2f, magnitudSacudida * 2f),
                 Random.Range(-magnitudSacudida * 2f, magnitudSacudida * 2f),
@@ -175,6 +184,7 @@ public class personaje : MonoBehaviour
             contArma.up = contArma.position - mira.position;
         }
     }
+
         
     void disparar()
     {
