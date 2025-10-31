@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 436137057267907933}
   - component: {fileID: 5547949709944166171}
   - component: {fileID: 132298815827520736}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cabeza2-removebg-preview_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,7 +161,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3880870157790634260}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Zombie2 muerto
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -197,7 +197,7 @@ GameObject:
   - component: {fileID: 4547208252976493612}
   - component: {fileID: 8485003997695706967}
   - component: {fileID: 6408649652806604225}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cuerpo2-removebg-preview_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

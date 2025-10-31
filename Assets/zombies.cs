@@ -40,73 +40,76 @@ public class zombies : MonoBehaviour
         anim = transform.GetComponent<Animator>();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (rb.linearVelocity.magnitude < umbralVelicidad)
-            distanciaShaggy = Mathf.Abs(Shaggy.position.x - transform.position.x);
         {
+            distanciaShaggy = Mathf.Abs(Shaggy.position.x - transform.position.x);
+            bool pocaDistanciaVertical = Mathf.Abs(Shaggy.position.y - transform.position.y) < 5f;
             switch (comportamiento)
             {
                 case tipoComportamientoZombie.pasivo:
-                    {
-                        // Movimiento del zombie
-                        rb.linearVelocity = new Vector2(velCaminata * direccion, rb.linearVelocity.y);
+                    // Movimiento del zombie
+                    rb.linearVelocity = new Vector2(velCaminata * direccion, rb.linearVelocity.y);
 
-                        // Cambio de dirección al alcanzar los límites
-                        if (transform.position.x <= limiteCaminataIzq)
-                            direccion = 1f;
-                        else if (transform.position.x >= limiteCaminataDer)
-                            direccion = -1f;
+                    // Cambio de dirección al alcanzar los límites
+                    if (transform.position.x <= limiteCaminataIzq)
+                        direccion = 1f;
+                    else if (transform.position.x >= limiteCaminataDer)
+                        direccion = -1f;
 
-                        anim.speed = 1f;
+                    // velocidad del animator 
+                    anim.speed = 1f;
 
-                        //entrar en zona de persecucion 
-                        if (distanciaShaggy < entradaZonaPersecucion) comportamiento = tipoComportamientoZombie.persecucion;
-                    }
+                    //entrar en zona de persecucion 
+                    if (distanciaShaggy < entradaZonaPersecucion && pocaDistanciaVertical) 
+                        comportamiento = tipoComportamientoZombie.persecucion;
                     break;
 
                 case tipoComportamientoZombie.persecucion:
-                    {
-                        // Movimiento del zombie (corriendo)
-                        rb.linearVelocity = new Vector2(velCaminata * 1.5f * direccion, rb.linearVelocity.y);
+                    
+                    // Movimiento del zombie (corriendo)
+                    rb.linearVelocity = new Vector2(velCaminata * 1.5f * direccion, rb.linearVelocity.y);
 
-                        // Cambio de dirección al alcanzar los límites
-                        if (Shaggy.position.x > transform.position.x)
-                            direccion = 1f;
-                        else if (Shaggy.position.x < transform.position.x)
-                            direccion = -1f;
+                    // Cambio de dirección al alcanzar los límites
+                    if (Shaggy.position.x > transform.position.x)
+                        direccion = 1f;
+                    else if (Shaggy.position.x < transform.position.x)
+                        direccion = -1f;
 
-                        // velocidad del animator
-                        anim.speed = 1.5f;
+                    // velocidad del animator
+                    anim.speed = 1.5f;
 
-                        // volver a la zona pasiva  
-                        if (distanciaShaggy > salidaZonaPersecucion) comportamiento = tipoComportamientoZombie.pasivo;
+                    // volver a la zona pasiva  
+                    if (distanciaShaggy > salidaZonaPersecucion  || !pocaDistanciaVertical) 
+                        comportamiento = tipoComportamientoZombie.pasivo;
 
-                        // entrar en zona de ataque
-                        if (distanciaShaggy < distaciaAtaque) comportamiento = tipoComportamientoZombie.ataque;
-                    }
+                    // entrar en zona de ataque
+                    if (distanciaShaggy < distaciaAtaque) 
+                        comportamiento = tipoComportamientoZombie.ataque;
+                    
                     break;
 
                 case tipoComportamientoZombie.ataque:
-                    {
-                        anim.SetTrigger("atacar");
+                    
+                    anim.SetTrigger("atacar");
                         
-                        // Cambio de dirección segun la posicion de shaggy
-                        if (Shaggy.position.x > transform.position.x)
-                            direccion = 1f;
-                        else if (Shaggy.position.x < transform.position.x)
-                            direccion = -1f;
+                    // Cambio de dirección segun la posicion de shaggy
+                    if (Shaggy.position.x > transform.position.x)
+                        direccion = 1f;
+                    else if (Shaggy.position.x < transform.position.x)
+                        direccion = -1f;
 
-                        // velocidad del animator
-                        anim.speed = 1f;
+                    // velocidad del animator
+                    anim.speed = 1f;
 
-                        // entrar en zona de ataque
-                        if (distanciaShaggy > distaciaAtaque)
-                        {
-                            comportamiento = tipoComportamientoZombie.persecucion;
-                            anim.ResetTrigger("atacar");
-                        }
+                    // entrar en zona de ataque
+                    if (distanciaShaggy > distaciaAtaque)
+                    {
+                        comportamiento = tipoComportamientoZombie.persecucion;
+                        anim.ResetTrigger("atacar");
                     }
+                    
                     break;
             }
 
