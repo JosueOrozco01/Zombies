@@ -22,7 +22,9 @@ public class zombies : MonoBehaviour
     float distanciaShaggy;
     public Transform Shaggy;
     Animator anim;
-    bool mordidaEsValida = false; 
+    bool mordidaEsValida = false;
+
+    public Transform refPiso;
 
 
     void Start()
@@ -44,6 +46,11 @@ public class zombies : MonoBehaviour
     {
         if (rb.linearVelocity.magnitude < umbralVelicidad)
         {
+
+            // detectar si estamos pisando 
+            bool enPiso = Physics2D.OverlapCircle(refPiso.position, 0.1f, 1 << 6); // Cuando el pie esta cerca del suelo
+
+
             distanciaShaggy = Mathf.Abs(Shaggy.position.x - transform.position.x);
             bool pocaDistanciaVertical = Mathf.Abs(Shaggy.position.y - transform.position.y) < 5f;
             switch (comportamiento)
@@ -62,12 +69,12 @@ public class zombies : MonoBehaviour
                     anim.speed = 1f;
 
                     //entrar en zona de persecucion 
-                    if (distanciaShaggy < entradaZonaPersecucion && pocaDistanciaVertical) 
+                    if (distanciaShaggy < entradaZonaPersecucion && pocaDistanciaVertical)
                         comportamiento = tipoComportamientoZombie.persecucion;
                     break;
 
                 case tipoComportamientoZombie.persecucion:
-                    
+
                     // Movimiento del zombie (corriendo)
                     rb.linearVelocity = new Vector2(velCaminata * 1.5f * direccion, rb.linearVelocity.y);
 
@@ -81,19 +88,19 @@ public class zombies : MonoBehaviour
                     anim.speed = 1.5f;
 
                     // volver a la zona pasiva  
-                    if (distanciaShaggy > salidaZonaPersecucion  || !pocaDistanciaVertical) 
+                    if (distanciaShaggy > salidaZonaPersecucion || !pocaDistanciaVertical)
                         comportamiento = tipoComportamientoZombie.pasivo;
 
                     // entrar en zona de ataque
-                    if (distanciaShaggy < distaciaAtaque) 
+                    if (distanciaShaggy < distaciaAtaque)
                         comportamiento = tipoComportamientoZombie.ataque;
-                    
+
                     break;
 
                 case tipoComportamientoZombie.ataque:
-                    
+
                     anim.SetTrigger("atacar");
-                        
+
                     // Cambio de dirección segun la posicion de shaggy
                     if (Shaggy.position.x > transform.position.x)
                         direccion = 1f;
@@ -109,15 +116,16 @@ public class zombies : MonoBehaviour
                         comportamiento = tipoComportamientoZombie.persecucion;
                         anim.ResetTrigger("atacar");
                     }
-                    
+
                     break;
             }
-
-            // Ajusta la escala para girar el sprite
-            Vector3 escala = transform.localScale;
-            escala.x = Mathf.Abs(escala.x) * Mathf.Sign(direccion);
-            transform.localScale = escala;
+        // si no hay piso debajo, poner en 0 su velocidad x 
+        if (!enPiso) rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
+        // Ajusta la escala para girar el sprite
+        Vector3 escala = transform.localScale;
+        escala.x = Mathf.Abs(escala.x) * Mathf.Sign(direccion);
+        transform.localScale = escala; 
     }
 
     private void OnCollisionStay2D(Collision2D collision)
