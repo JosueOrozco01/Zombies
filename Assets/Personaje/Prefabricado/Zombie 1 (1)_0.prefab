@@ -185,7 +185,7 @@ Transform:
   m_GameObject: {fileID: 1424809558533228060}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.57, y: 0.27, z: 0}
+  m_LocalPosition: {x: -7.67, y: -2.63, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -788,7 +788,7 @@ MonoBehaviour:
   prefabMuerto: {fileID: 0}
   magnitudVueloCabeza: 300
   Shaggy: {fileID: 0}
-  refPie: {fileID: 8493452497549423103}
+  refPiso: {fileID: 8493452497549423103}
 --- !u!1 &3905676548121002742
 GameObject:
   m_ObjectHideFlags: 0

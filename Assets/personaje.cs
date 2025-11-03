@@ -11,12 +11,17 @@ public class personaje : MonoBehaviour
     public bool enPiso;
     public Transform refPie;
     public float velX = 10f;
+
     public Transform contArma;
     bool tieneArma;
+
     public Transform mira;
     public Transform refManoArma;
+
     public Transform refOjos;
     public Transform refCabeza;
+    bool miraValida;
+
     public float magnitudPateoArma = 300f;
     public Transform refPuntaArma;
     public GameObject particulasArma;
@@ -41,6 +46,10 @@ public class personaje : MonoBehaviour
     //muerte
     public UnityEngine.UI.Image telaNegra;
     float valorAlfaDeseadoTelaNegra;
+
+    public TMPro.TextMeshProUGUI textoContBalas;
+
+    int cantBalas = 0;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -104,12 +113,21 @@ public class personaje : MonoBehaviour
             // La mano sigue a la mira
             refManoArma.position = mira.position;
 
+            Vector3 distancia = transform.position - mira.position; // calculo la distancia
+            miraValida = (distancia.magnitude > 10f);
+
+            mira.gameObject.SetActive(miraValida);
+
+
             // Disparo
-            if (Input.GetButtonDown("Fire1"))
+            if (Input.GetButtonDown("Fire1") && miraValida)
             {
                 disparar();
             }
         }
+
+        // se muestre la cantidad de balas
+        textoContBalas.text = cantBalas.ToString();
     }
 
     void actualizarDisplay()
@@ -164,7 +182,7 @@ public class personaje : MonoBehaviour
                 Random.Range(-magnitudSacudida * 0.05f, magnitudSacudida * 0.05f),
                 Random.Range(-magnitudSacudida * 0.05f, magnitudSacudida * 0.05f),
                 camaraSacudir.localPosition.z
-            );
+            ); 
 
             // Disminuye más lentamente
             magnitudSacudida *= 0.93f;
@@ -175,13 +193,15 @@ public class personaje : MonoBehaviour
             camaraSacudir.localPosition = new Vector3(0, 0, camaraSacudir.localPosition.z);
         }
 
-        if (tieneArma)
+        if (tieneArma && miraValida)
         {
             // que la cabeza apunte a la mira
             refCabeza.up = refOjos.position - mira.position;
 
             // que el arma mire el mouse
             contArma.up = contArma.position - mira.position;
+
+            refManoArma.position = mira.position;
         }
     }
 
