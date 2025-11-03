@@ -122,7 +122,13 @@ public class personaje : MonoBehaviour
             // Disparo
             if (Input.GetButtonDown("Fire1") && miraValida)
             {
-                disparar();
+                if (cantBalas > 0) disparar();
+                else
+                {
+                    // avisar que no tiene balas
+                    textoContBalas.color = Color.red;
+                    textoContBalas.fontSize = 50;
+                }
             }
         }
 
@@ -162,7 +168,11 @@ public class personaje : MonoBehaviour
         telaNegra.color = new Color(0, 0, 0, valorAlfa);
 
         // reiniciar escena cuando se complete fade out 
-        if (valorAlfa > 0.9f &&  valorAlfaDeseadoTelaNegra == 1) SceneManager.LoadScene("Scenes/Escena");
+        if (valorAlfa > 0.9f && valorAlfaDeseadoTelaNegra == 1) SceneManager.LoadScene("Scenes/Escena");
+
+        // vuelve el contador de balas a su estilo normal 
+        textoContBalas.color = Color.Lerp(textoContBalas.color, Color.white, 0.1f);
+        textoContBalas.fontSize = Mathf.Lerp(textoContBalas.fontSize, 36, 0.1f);
     }
 
     private void LateUpdate()
@@ -220,11 +230,11 @@ public class personaje : MonoBehaviour
         Destroy(particulaArma, 2f);
 
         // Sacudir cámara
-        sacudirCamara(1.5f);
+        sacudirCamara(1f);
 
         // Raycast para detectar todo lo que toque
         RaycastHit2D[] hits = Physics2D.RaycastAll(contArma.position, direccion, 100f, ~(1 << 8));
-        
+
         foreach (var hit in hits)
         {
             if (hit.collider != null)
@@ -255,6 +265,9 @@ public class personaje : MonoBehaviour
                 }
             }
         }
+
+        // restar municiones
+        cantBalas -= 1;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -265,9 +278,22 @@ public class personaje : MonoBehaviour
             tieneArma = true;
             Destroy(collision.gameObject);
             contArma.gameObject.SetActive(true);
+            cantBalas += 8;
+
+            textoContBalas.color = Color.green;
+            textoContBalas.fontSize = 50;
 
             // Mostrar la mira ahora que tenemos arma
             mira.gameObject.SetActive(true);
+            
+        }
+
+        if (collision.gameObject.CompareTag("balas"))
+        {
+            Destroy(collision.gameObject);
+            cantBalas += 8;
+            textoContBalas.color = Color.green;
+            textoContBalas.fontSize = 50;
         }
     }
 
