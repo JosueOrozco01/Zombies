@@ -132,6 +132,9 @@ public class personaje : MonoBehaviour
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.P)) cargarPartida();
+        if (Input.GetKeyDown(KeyCode.O)) guardarPartida();
+
         // se muestre la cantidad de balas
         textoContBalas.text = cantBalas.ToString();
     }
@@ -149,8 +152,6 @@ public class personaje : MonoBehaviour
         float valorDeseado = (float)energiaActual / energiaMax;
         if (valorDeseado == 0) barraLlena.fillAmount = 0;
         barraLlena.fillAmount = Mathf.Lerp(barraLlena.fillAmount, valorDeseado, 0.1f);
-
-
     }
 
     private void FixedUpdate()
@@ -192,7 +193,7 @@ public class personaje : MonoBehaviour
                 Random.Range(-magnitudSacudida * 0.05f, magnitudSacudida * 0.05f),
                 Random.Range(-magnitudSacudida * 0.05f, magnitudSacudida * 0.05f),
                 camaraSacudir.localPosition.z
-            ); 
+            );
 
             // Disminuye más lentamente
             magnitudSacudida *= 0.93f;
@@ -215,7 +216,20 @@ public class personaje : MonoBehaviour
         }
     }
 
-        
+    void guardarPartida()
+    {
+        infoPartidaGuardada.infoShaggy.cantBalas = cantBalas;
+        infoPartidaGuardada.infoShaggy.energiaActual = energiaActual;
+        infoPartidaGuardada.infoShaggy.posicion = transform.position;
+    }
+
+    void cargarPartida()
+    {
+        cantBalas = infoPartidaGuardada.infoShaggy.cantBalas ;
+        energiaActual = infoPartidaGuardada.infoShaggy.energiaActual;
+        transform.position = infoPartidaGuardada.infoShaggy.posicion;
+    }
+    
     void disparar()
     {
         Vector3 direccion = (mira.position - contArma.position).normalized;
