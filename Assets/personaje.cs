@@ -51,6 +51,9 @@ public class personaje : MonoBehaviour
 
     int cantBalas = 0;
 
+    public GameObject granada;
+    public float fuerzaArrojarGranada = 50f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -109,7 +112,7 @@ public class personaje : MonoBehaviour
         {
             // Convertir posición del mouse a coordenadas del mundo
             Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mouseWorld.z = 0f; // evita vibración por profundidad
+            mouseWorld.z = -30f; // evita vibración por profundidad
 
             // Posicionar mira
             mira.position = mouseWorld;
@@ -133,6 +136,11 @@ public class personaje : MonoBehaviour
                     textoContBalas.color = Color.red;
                     textoContBalas.fontSize = 50;
                 }
+            }
+
+            if (Input.GetButtonDown("Fire2") && miraValida)
+            {
+                ArrojarGranada();
             }
         }
 
@@ -218,6 +226,16 @@ public class personaje : MonoBehaviour
 
             refManoArma.position = mira.position;
         }
+    }
+
+    void ArrojarGranada()
+    {
+        GameObject nuevaGranada = Instantiate(
+            granada, transform.position + transform.forward, Quaternion.identity);
+
+        Vector2 dir = (mira.position - transform.position).normalized;
+
+        nuevaGranada.GetComponent<Rigidbody2D>().AddForce(fuerzaArrojarGranada * dir, ForceMode2D.Impulse);
     }
 
     void guardarPartida()
