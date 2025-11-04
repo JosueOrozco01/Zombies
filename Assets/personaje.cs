@@ -65,8 +65,12 @@ public class personaje : MonoBehaviour
         telaNegra.color = new Color(0, 0, 0, 1); // negro
         valorAlfaDeseadoTelaNegra = 0; // transparente
 
+        if (infoPartidaGuardada.hayPartidaGuardada) cargarPartida();
+
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined; // o Locked según el juego
+
+
     }
 
     // Update is called once per frame
@@ -221,6 +225,20 @@ public class personaje : MonoBehaviour
         infoPartidaGuardada.infoShaggy.cantBalas = cantBalas;
         infoPartidaGuardada.infoShaggy.energiaActual = energiaActual;
         infoPartidaGuardada.infoShaggy.posicion = transform.position;
+
+        infoPartidaGuardada.hayPartidaGuardada = true;
+
+        // guardar el estado de cada paquete de balas en la lista llamada Paquete de balas
+        infoPartidaGuardada.infoPaqueteBalas.Clear();
+        Transform todosLosPaquetes = GameObject.Find("Paquete de balas").transform;
+        foreach (Transform paq in todosLosPaquetes)
+        {
+            infoPartidaGuardada.TipoInfoPaqueteBalas itemPaq = new infoPartidaGuardada.TipoInfoPaqueteBalas
+            {
+                activo = paq.gameObject.activeSelf
+            };
+            infoPartidaGuardada.infoPaqueteBalas.Add(itemPaq);
+        }
     }
 
     void cargarPartida()
@@ -228,6 +246,14 @@ public class personaje : MonoBehaviour
         cantBalas = infoPartidaGuardada.infoShaggy.cantBalas ;
         energiaActual = infoPartidaGuardada.infoShaggy.energiaActual;
         transform.position = infoPartidaGuardada.infoShaggy.posicion;
+
+        // cargar el estado de cada paquete de balas en la lista llamada Paquete de balas
+        Transform todosLosPaquetes = GameObject.Find("Paquete de balas").transform;
+        int i = 0;
+        foreach (Transform paq in todosLosPaquetes)
+        {
+            paq.gameObject.SetActive(infoPartidaGuardada.infoPaqueteBalas[i++].activo);
+        }
     }
     
     void disparar()
@@ -304,7 +330,8 @@ public class personaje : MonoBehaviour
 
         if (collision.gameObject.CompareTag("balas"))
         {
-            Destroy(collision.gameObject);
+            // Destroy(collision.gameObject);
+            collision.gameObject.SetActive(false);
             cantBalas += 8;
             textoContBalas.color = Color.green;
             textoContBalas.fontSize = 50;

@@ -145,7 +145,9 @@ public class zombies : MonoBehaviour
         instMuerto.transform.GetChild(1).GetComponent<Rigidbody2D>().AddForce(direccion * magnitudVueloCabeza / 2, ForceMode2D.Impulse);
         instMuerto.transform.GetChild(0).GetComponent<Rigidbody2D>().AddTorque(10f, ForceMode2D.Impulse);
         instMuerto.transform.GetChild(1).GetComponent<Rigidbody2D>().AddTorque(10f, ForceMode2D.Impulse);
-        Destroy(gameObject);
+
+        // Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 
     public void mordidaValida_inicio()
