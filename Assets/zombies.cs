@@ -26,6 +26,8 @@ public class zombies : MonoBehaviour
 
     public Transform refPiso;
 
+    public bool vivo = true;
+
 
     void Start()
     {
@@ -44,6 +46,8 @@ public class zombies : MonoBehaviour
 
     void Update()
     {
+        if (!vivo) return;
+
         if (rb.linearVelocity.magnitude < umbralVelicidad)
         {
 
@@ -130,6 +134,8 @@ public class zombies : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
+        if (!vivo) return;
+        
         if (collision.gameObject.CompareTag("Player") && mordidaEsValida)
         {
             mordidaEsValida = false;
@@ -147,7 +153,9 @@ public class zombies : MonoBehaviour
         instMuerto.transform.GetChild(1).GetComponent<Rigidbody2D>().AddTorque(10f, ForceMode2D.Impulse);
 
         // Destroy(gameObject);
-        gameObject.SetActive(false);
+        // gameObject.SetActive(false);
+        gameObject.GetComponent<SpriteRenderer>().enabled = false;
+        vivo = false;
     }
 
     public void mordidaValida_inicio()

@@ -22,10 +22,11 @@ public static class infoPartidaGuardada
     public static List<TipoInfoPaqueteBalas> infoPaqueteBalas = new List<TipoInfoPaqueteBalas>();
 
     // para guardar los zombies
-    public class TipoInfoPaqueteBalas
+    public class TipoInfoZombie
     {
         public bool activo;
+        public Vector2 posicion;
     }
 
-    public static List<TipoInfoPaqueteBalas> infoPaqueteBalas = new List<TipoInfoPaqueteBalas>();
+    public static List<TipoInfoZombie> infoZombies = new List<TipoInfoZombie>();
 }

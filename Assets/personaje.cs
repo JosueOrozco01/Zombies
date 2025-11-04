@@ -239,6 +239,19 @@ public class personaje : MonoBehaviour
             };
             infoPartidaGuardada.infoPaqueteBalas.Add(itemPaq);
         }
+
+        // guardar el estado de cada zombie
+        infoPartidaGuardada.infoZombies.Clear();
+        Transform todosLosZombies = GameObject.Find("Zombies").transform;
+        foreach (Transform zombie in todosLosZombies)
+        {
+            infoPartidaGuardada.TipoInfoZombie itemZombie = new infoPartidaGuardada.TipoInfoZombie
+            {
+                activo = zombie.gameObject.activeSelf,
+                posicion = zombie.position
+            };
+            infoPartidaGuardada.infoZombies.Add(itemZombie);
+        }
     }
 
     void cargarPartida()
@@ -253,6 +266,19 @@ public class personaje : MonoBehaviour
         foreach (Transform paq in todosLosPaquetes)
         {
             paq.gameObject.SetActive(infoPartidaGuardada.infoPaqueteBalas[i++].activo);
+        }
+
+        // cargar el estado de cada zombie
+        Transform todosLosZombies = GameObject.Find("Zombies").transform;
+        i = 0;
+        foreach (Transform zombie in todosLosZombies)
+        {
+            // zombie.gameObject.SetActive(infoPartidaGuardada.infoZombies[i++].activo);
+
+            zombie.GetComponent<SpriteRenderer>().enabled = infoPartidaGuardada.infoZombies[i].activo;
+            zombie.GetComponent<zombies>().vivo = infoPartidaGuardada.infoZombies[i].activo;
+
+            zombie.position = infoPartidaGuardada.infoZombies[i++].posicion;
         }
     }
     
@@ -281,17 +307,20 @@ public class personaje : MonoBehaviour
             {
                 if (hit.collider.CompareTag("cabezaZombie"))
                 {
-                    // Matar zombie al golpear la cabeza
-                    zombies z = hit.transform.GetComponentInParent<zombies>();
-                    if (z != null)
+                    if (hit.transform.GetComponent<zombies>().vivo)
                     {
-                        z.muere(direccion);
+                        // Matar zombie al golpear la cabeza
+                        zombies z = hit.transform.GetComponentInParent<zombies>();
+                        if (z != null)
+                        {
+                            z.muere(direccion);
 
-                        // Partículas de sangre verde
-                        GameObject particulaSangre = Instantiate(particulasMuchaSangreVerde, hit.point, Quaternion.identity);
-                        Destroy(particulaSangre, 2f);
+                            // Partículas de sangre verde
+                            GameObject particulaSangre = Instantiate(particulasMuchaSangreVerde, hit.point, Quaternion.identity);
+                            Destroy(particulaSangre, 2f);
 
-                        break; // Detenemos el loop, ya mató al zombie
+                            break; // Detenemos el loop, ya mató al zombie
+                        }
                     }
                 }
                 else if (hit.collider.CompareTag("zombie"))
@@ -335,6 +364,12 @@ public class personaje : MonoBehaviour
             cantBalas += 8;
             textoContBalas.color = Color.green;
             textoContBalas.fontSize = 50;
+        }
+
+        if (collision.gameObject.CompareTag("checkpoint"))
+        {
+            guardarPartida();
+            Destroy(collision.gameObject);
         }
     }
 
