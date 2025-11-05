@@ -54,7 +54,14 @@ public class personaje : MonoBehaviour
     public GameObject granada;
     public float fuerzaArrojarGranada = 50f;
 
+    [Header("sonidos")]
     public GameObject disparo; 
+    public GameObject sinBalas;
+    public GameObject agarrarMuniciones;
+    public GameObject agarrarCheckpoint;
+    public GameObject ShaggySalta;
+    public GameObject ZombieMuere;
+    public GameObject ShaggyDuele;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -96,6 +103,7 @@ public class personaje : MonoBehaviour
         if (Input.GetButtonDown("Jump") && enPiso)
         {
             rb.AddForce(new Vector2(0, fuerzaSalto), ForceMode2D.Impulse);
+            NuevoSonido(ShaggySalta, transform.position, 1f);
         }
 
         // Girar el personaje
@@ -137,6 +145,7 @@ public class personaje : MonoBehaviour
                     // avisar que no tiene balas
                     textoContBalas.color = Color.red;
                     textoContBalas.fontSize = 50;
+                    NuevoSonido(sinBalas, refManoArma.position, 1f);
                 }
             }
 
@@ -340,6 +349,8 @@ public class personaje : MonoBehaviour
                             GameObject particulaSangre = Instantiate(particulasMuchaSangreVerde, hit.point, Quaternion.identity);
                             Destroy(particulaSangre, 2f);
 
+                            NuevoSonido(ZombieMuere, transform.position, 1f);
+
                             break; // Detenemos el loop, ya mató al zombie
                         }
                     }
@@ -374,13 +385,15 @@ public class personaje : MonoBehaviour
         {
             // agarrar el arma
             tieneArma = true;
-            Destroy(collision.gameObject);
             contArma.gameObject.SetActive(true);
             cantBalas += 8;
 
             textoContBalas.color = Color.green;
             textoContBalas.fontSize = 50;
 
+            NuevoSonido(agarrarMuniciones, collision.transform.position, 1f);
+
+            Destroy(collision.gameObject);
             // Mostrar la mira ahora que tenemos arma
             mira.gameObject.SetActive(true);
             
@@ -393,11 +406,13 @@ public class personaje : MonoBehaviour
             cantBalas += 8;
             textoContBalas.color = Color.green;
             textoContBalas.fontSize = 50;
+            NuevoSonido(agarrarMuniciones, collision.transform.position, 1f);
         }
 
         if (collision.gameObject.CompareTag("checkpoint"))
         {
             guardarPartida();
+            NuevoSonido(agarrarCheckpoint, collision.transform.position, 1f);
             Destroy(collision.gameObject);
         }
     }
@@ -432,6 +447,8 @@ public class personaje : MonoBehaviour
 
             // Disparar la animacion 
             anim.SetTrigger("auch");
+
+            NuevoSonido(ShaggyDuele, transform.position, 1f);
         }
     }
 
