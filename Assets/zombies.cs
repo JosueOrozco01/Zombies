@@ -155,6 +155,7 @@ public class zombies : MonoBehaviour
         // Destroy(gameObject);
         // gameObject.SetActive(false);
         gameObject.GetComponent<SpriteRenderer>().enabled = false;
+        gameObject.GetComponent<AudioSource>().enabled = false;
         vivo = false;
     }
 

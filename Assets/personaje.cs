@@ -54,6 +54,8 @@ public class personaje : MonoBehaviour
     public GameObject granada;
     public float fuerzaArrojarGranada = 50f;
 
+    public GameObject disparo; 
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -294,19 +296,20 @@ public class personaje : MonoBehaviour
             // zombie.gameObject.SetActive(infoPartidaGuardada.infoZombies[i++].activo);
 
             zombie.GetComponent<SpriteRenderer>().enabled = infoPartidaGuardada.infoZombies[i].activo;
+            zombie.GetComponent<AudioSource>().enabled = infoPartidaGuardada.infoZombies[i].activo;
             zombie.GetComponent<zombies>().vivo = infoPartidaGuardada.infoZombies[i].activo;
 
             zombie.position = infoPartidaGuardada.infoZombies[i++].posicion;
         }
     }
-    
+
     void disparar()
     {
         Vector3 direccion = (mira.position - contArma.position).normalized;
 
         // Retroceso del arma
         Vector3 direccionRetroceso = -direccion;
-        direccionRetroceso.y *= 0.2f; 
+        direccionRetroceso.y *= 0.2f;
         rb.AddForce(magnitudPateoArma * direccionRetroceso, ForceMode2D.Impulse);
 
         // Partículas del arma (se destruyen automáticamente después de 2s)
@@ -355,7 +358,15 @@ public class personaje : MonoBehaviour
 
         // restar municiones
         cantBalas -= 1;
+
+        // emite sonido 
+        NuevoSonido(disparo, refManoArma.position, 1f);
     }
+    
+    void NuevoSonido (GameObject prefab, Vector2 posicion, float duracion = 5f)
+    {
+        Destroy(Instantiate(prefab, posicion, Quaternion.identity), duracion);
+    } 
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
