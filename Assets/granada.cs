@@ -23,7 +23,9 @@ public class granada : MonoBehaviour
         Destroy(gameObject);
 
         // 2. explosion
-        Instantiate(prefabExplosion, transform.position, transform.rotation);
+        GameObject explosion = Instantiate(prefabExplosion, transform.position, transform.rotation);
+        Destroy(explosion, 2f); // se destruye después de 2 segundos
+
         // 3. daño
         // zombies
         Collider2D[] todosLosObjetos = Physics2D.OverlapCircleAll(transform.position, 10f);
@@ -44,6 +46,5 @@ public class granada : MonoBehaviour
                 obj.gameObject.GetComponent<personaje>().RecibirMordida(obj.transform.position);
             }
         }
-            // Shaggy 
     }
 }

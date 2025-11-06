@@ -62,6 +62,13 @@ public class personaje : MonoBehaviour
     public GameObject ShaggySalta;
     public GameObject ZombieMuere;
     public GameObject ShaggyDuele;
+    public GameObject FondoSonido;
+
+    [Header("Mobile Controls")]
+    public GameObject joystick;
+    public GameObject btnJump;
+    public GameObject btnFire;
+    public GameObject btnGrenade;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -80,31 +87,58 @@ public class personaje : MonoBehaviour
         if (infoPartidaGuardada.hayPartidaGuardada) cargarPartida();
 
         Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Confined; // o Locked según el juego
+        Cursor.lockState = CursorLockMode.Confined;
 
+        // Fondo sonoro
+        GameObject bgm = Instantiate(FondoSonido, Vector3.zero, Quaternion.identity);
+        DontDestroyOnLoad(bgm);
+        bgm.GetComponent<AudioSource>().loop = true;
+        bgm.GetComponent<AudioSource>().Play();
 
+        #if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR
+        // Móvil o editor → mostrar botones
+        joystick.SetActive(true);
+        btnJump.SetActive(true);
+        btnFire.SetActive(true);
+        btnGrenade.SetActive(true);
+        #else
+        // PC → ocultar botones
+        joystick.SetActive(false);
+        btnJump.SetActive(false);
+        btnFire.SetActive(false);
+        btnGrenade.SetActive(false);
+        #endif
     }
 
     // Update is called once per frame
     void Update()
     {
         if (energiaActual <= 0) return;
+
         // movernos horizontalmente
-        float movX;
-        movX = Input.GetAxis("Horizontal");
+        float movX = 0;
+
+        #if UNITY_ANDROID || UNITY_IOS
+            // Móvil → usar joystick
+            if (joystick != null)
+                movX = joystick.GetComponent<Joystick>().Horizontal;
+        #else
+            // PC → teclado
+            movX = Input.GetAxis("Horizontal");
+        #endif
+
         anim.SetFloat("absMovX", Mathf.Abs(movX));
         rb.linearVelocity = new Vector2(velX * movX, rb.linearVelocity.y);
 
-        // detecccion si estamos en el piso 
-        enPiso = Physics2D.OverlapCircle(refPie.position, 1f, 1 << 6); // Cuando el pie esta cerca del suelo
+        // detección si estamos en el piso
+        enPiso = Physics2D.OverlapCircle(refPie.position, 1f, 1 << 6);
         anim.SetBool("enPiso", enPiso);
 
-        // saltar
-        if (Input.GetButtonDown("Jump") && enPiso)
-        {
-            rb.AddForce(new Vector2(0, fuerzaSalto), ForceMode2D.Impulse);
-            NuevoSonido(ShaggySalta, transform.position, 1f);
-        }
+        // salto (solo PC, en móvil se llamará desde el botón)
+        #if !UNITY_ANDROID && !UNITY_IOS
+            if (Input.GetButtonDown("Jump") && enPiso)
+                Saltar();
+        #endif
 
         // Girar el personaje
         if (tieneArma)
@@ -120,39 +154,34 @@ public class personaje : MonoBehaviour
 
         if (tieneArma)
         {
-            // Convertir posición del mouse a coordenadas del mundo
-            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mouseWorld.z = -30f; // evita vibración por profundidad
+            #if !UNITY_ANDROID && !UNITY_IOS
+                // Convertir posición del mouse a coordenadas del mundo (PC)
+                Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                mouseWorld.z = -30f; // evita vibración por profundidad
+                mira.position = mouseWorld;
+                refManoArma.position = mira.position;
 
-            // Posicionar mira
-            mira.position = mouseWorld;
+                Vector3 distancia = transform.position - mira.position;
+                miraValida = (distancia.magnitude > 10f);
+                mira.gameObject.SetActive(miraValida);
 
-            // La mano sigue a la mira
-            refManoArma.position = mira.position;
-
-            Vector3 distancia = transform.position - mira.position; // calculo la distancia
-            miraValida = (distancia.magnitude > 10f);
-
-            mira.gameObject.SetActive(miraValida);
-
-
-            // Disparo
-            if (Input.GetButtonDown("Fire1") && miraValida)
-            {
-                if (cantBalas > 0) disparar();
-                else
+                // Disparo
+                if (Input.GetButtonDown("Fire1") && miraValida)
                 {
-                    // avisar que no tiene balas
-                    textoContBalas.color = Color.red;
-                    textoContBalas.fontSize = 50;
-                    NuevoSonido(sinBalas, refManoArma.position, 1f);
+                    if (cantBalas > 0) disparar();
+                    else
+                    {
+                        textoContBalas.color = Color.red;
+                        textoContBalas.fontSize = 50;
+                        NuevoSonido(sinBalas, refManoArma.position, 1f);
+                    }
                 }
-            }
 
-            if (Input.GetButtonDown("Fire2") && miraValida)
-            {
-                ArrojarGranada();
-            }
+                if (Input.GetButtonDown("Fire2") && miraValida)
+                {
+                    ArrojarGranada();
+                }
+            #endif
         }
 
         if (Input.GetKeyDown(KeyCode.P)) cargarPartida();
@@ -161,6 +190,30 @@ public class personaje : MonoBehaviour
         // se muestre la cantidad de balas
         textoContBalas.text = cantBalas.ToString();
     }
+
+    // Función de salto
+    public void Saltar()
+    {
+        Debug.Log("Botón SALTO presionado");
+        if (!enPiso) return;
+        rb.AddForce(new Vector2(0, fuerzaSalto), ForceMode2D.Impulse);
+        NuevoSonido(ShaggySalta, transform.position, 1f);
+    }
+
+    // Funciones disparar y lanzar granada para móvil
+    public void BotonDisparar()
+    {
+        Debug.Log("Botón DISPARO presionado");
+        if (miraValida && cantBalas > 0) disparar();
+        else if (cantBalas <= 0) NuevoSonido(sinBalas, refManoArma.position, 1f);
+    }
+
+    public void BotonGranada()
+    {
+        Debug.Log("Botón GRANADA presionado");
+        if (miraValida) ArrojarGranada();
+    }
+
 
     void actualizarDisplay()
     {
