@@ -1,6 +1,8 @@
 using Unity.Mathematics.Geometry;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
+
 
 
 public class personaje : MonoBehaviour
@@ -65,11 +67,15 @@ public class personaje : MonoBehaviour
     public GameObject FondoSonido;
 
     [Header("Mobile Controls")]
-    public GameObject joystick;
     public GameObject btnJump;
     public GameObject btnFire;
     public GameObject btnGrenade;
+    public GameObject btnLeft;
+    public GameObject btnRight;
 
+    [Header("Controles móviles")]
+    private bool presionandoIzquierda = false;
+    private bool presionandoDerecha = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -95,19 +101,34 @@ public class personaje : MonoBehaviour
         bgm.GetComponent<AudioSource>().loop = true;
         bgm.GetComponent<AudioSource>().Play();
 
-        #if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR
-        // Móvil o editor → mostrar botones
-        joystick.SetActive(true);
-        btnJump.SetActive(true);
-        btnFire.SetActive(true);
-        btnGrenade.SetActive(true);
+        #if UNITY_ANDROID || UNITY_IOS
+            btnJump.SetActive(true);
+            btnFire.SetActive(true);
+            btnGrenade.SetActive(true);
+            btnLeft.SetActive(true);
+            btnRight.SetActive(true);
+        #elif UNITY_EDITOR
+            // Mostrar botones para probar en el editor
+            btnJump.SetActive(true);
+            btnFire.SetActive(true);
+            btnGrenade.SetActive(true);
+            btnLeft.SetActive(true);
+            btnRight.SetActive(true);
         #else
-        // PC → ocultar botones
-        joystick.SetActive(false);
-        btnJump.SetActive(false);
-        btnFire.SetActive(false);
-        btnGrenade.SetActive(false);
+            // PC real → ocultar botones
+            btnJump.SetActive(false);
+            btnFire.SetActive(false);
+            btnGrenade.SetActive(false);
+            btnLeft.SetActive(false);
+            btnRight.SetActive(false);
         #endif
+
+
+        #if UNITY_EDITOR
+        // Simular touch con el mouse dentro del editor
+        UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
+        #endif
+
     }
 
     // Update is called once per frame
@@ -118,14 +139,15 @@ public class personaje : MonoBehaviour
         // movernos horizontalmente
         float movX = 0;
 
-        #if UNITY_ANDROID || UNITY_IOS
-            // Móvil → usar joystick
-            if (joystick != null)
-                movX = joystick.GetComponent<Joystick>().Horizontal;
+        #if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR
+            // Móvil o simulación en editor → usar botones izquierda/derecha
+            if (presionandoIzquierda) movX = -1f;
+            else if (presionandoDerecha) movX = 1f;
         #else
             // PC → teclado
             movX = Input.GetAxis("Horizontal");
         #endif
+
 
         anim.SetFloat("absMovX", Mathf.Abs(movX));
         rb.linearVelocity = new Vector2(velX * movX, rb.linearVelocity.y);
@@ -153,11 +175,11 @@ public class personaje : MonoBehaviour
         }
 
         if (tieneArma)
-        {
+            {
             #if !UNITY_ANDROID && !UNITY_IOS
-                // Convertir posición del mouse a coordenadas del mundo (PC)
+                // Posición de la mira (solo PC)
                 Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                mouseWorld.z = -30f; // evita vibración por profundidad
+                mouseWorld.z = -30f;
                 mira.position = mouseWorld;
                 refManoArma.position = mira.position;
 
@@ -165,30 +187,59 @@ public class personaje : MonoBehaviour
                 miraValida = (distancia.magnitude > 10f);
                 mira.gameObject.SetActive(miraValida);
 
-                // Disparo
-                if (Input.GetButtonDown("Fire1") && miraValida)
+                // 🔥 Solo disparar si el clic NO es sobre UI
+                bool clickSobreUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+
+                if (!clickSobreUI)
                 {
-                    if (cantBalas > 0) disparar();
-                    else
+                    if (Input.GetButtonDown("Fire1") && miraValida)
                     {
-                        textoContBalas.color = Color.red;
-                        textoContBalas.fontSize = 50;
-                        NuevoSonido(sinBalas, refManoArma.position, 1f);
+                        if (cantBalas > 0) disparar();
+                        else
+                        {
+                            textoContBalas.color = Color.red;
+                            textoContBalas.fontSize = 50;
+                            NuevoSonido(sinBalas, refManoArma.position, 1f);
+                        }
+                    }
+
+                    if (Input.GetButtonDown("Fire2") && miraValida)
+                    {
+                        ArrojarGranada();
                     }
                 }
-
-                if (Input.GetButtonDown("Fire2") && miraValida)
-                {
-                    ArrojarGranada();
-                }
             #endif
-        }
+            }
+
 
         if (Input.GetKeyDown(KeyCode.P)) cargarPartida();
         if (Input.GetKeyDown(KeyCode.O)) guardarPartida();
 
         // se muestre la cantidad de balas
         textoContBalas.text = cantBalas.ToString();
+    }
+    public void PresionarIzquierda()
+    {
+        presionandoIzquierda = true;
+        Debug.Log("← Presionando izquierda");
+    }
+
+    public void SoltarIzquierda()
+    {
+        presionandoIzquierda = false;
+        Debug.Log("← Soltó izquierda");
+    }
+
+    public void PresionarDerecha()
+    {
+        presionandoDerecha = true;
+        Debug.Log("→ Presionando derecha");
+    }
+
+    public void SoltarDerecha()
+    {
+        presionandoDerecha = false;
+        Debug.Log("→ Soltó derecha");
     }
 
     // Función de salto
@@ -203,6 +254,7 @@ public class personaje : MonoBehaviour
     // Funciones disparar y lanzar granada para móvil
     public void BotonDisparar()
     {
+        if (!enPiso) return;
         Debug.Log("Botón DISPARO presionado");
         if (miraValida && cantBalas > 0) disparar();
         else if (cantBalas <= 0) NuevoSonido(sinBalas, refManoArma.position, 1f);
@@ -213,7 +265,6 @@ public class personaje : MonoBehaviour
         Debug.Log("Botón GRANADA presionado");
         if (miraValida) ArrojarGranada();
     }
-
 
     void actualizarDisplay()
     {
