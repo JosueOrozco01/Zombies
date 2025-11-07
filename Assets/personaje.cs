@@ -57,7 +57,7 @@ public class personaje : MonoBehaviour
     public float fuerzaArrojarGranada = 50f;
 
     [Header("sonidos")]
-    public GameObject disparo; 
+    public GameObject disparo;
     public GameObject sinBalas;
     public GameObject agarrarMuniciones;
     public GameObject agarrarCheckpoint;
@@ -101,33 +101,33 @@ public class personaje : MonoBehaviour
         bgm.GetComponent<AudioSource>().loop = true;
         bgm.GetComponent<AudioSource>().Play();
 
-        #if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS
             btnJump.SetActive(true);
             btnFire.SetActive(true);
             btnGrenade.SetActive(true);
             btnLeft.SetActive(true);
             btnRight.SetActive(true);
-        #elif UNITY_EDITOR
-            // Mostrar botones para probar en el editor
-            btnJump.SetActive(true);
-            btnFire.SetActive(true);
-            btnGrenade.SetActive(true);
-            btnLeft.SetActive(true);
-            btnRight.SetActive(true);
-        #else
+#elif UNITY_EDITOR
+        // Mostrar botones para probar en el editor
+        btnJump.SetActive(true);
+        btnFire.SetActive(true);
+        btnGrenade.SetActive(true);
+        btnLeft.SetActive(true);
+        btnRight.SetActive(true);
+#else
             // PC real → ocultar botones
             btnJump.SetActive(false);
             btnFire.SetActive(false);
             btnGrenade.SetActive(false);
             btnLeft.SetActive(false);
             btnRight.SetActive(false);
-        #endif
+#endif
 
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         // Simular touch con el mouse dentro del editor
         UnityEngine.EventSystems.EventSystem.current.sendNavigationEvents = true;
-        #endif
+#endif
 
     }
 
@@ -139,14 +139,14 @@ public class personaje : MonoBehaviour
         // movernos horizontalmente
         float movX = 0;
 
-        #if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR
-            // Móvil o simulación en editor → usar botones izquierda/derecha
-            if (presionandoIzquierda) movX = -1f;
-            else if (presionandoDerecha) movX = 1f;
-        #else
+#if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR
+        // Móvil o simulación en editor → usar botones izquierda/derecha
+        if (presionandoIzquierda) movX = -1f;
+        else if (presionandoDerecha) movX = 1f;
+#else
             // PC → teclado
             movX = Input.GetAxis("Horizontal");
-        #endif
+#endif
 
 
         anim.SetFloat("absMovX", Mathf.Abs(movX));
@@ -157,10 +157,10 @@ public class personaje : MonoBehaviour
         anim.SetBool("enPiso", enPiso);
 
         // salto (solo PC, en móvil se llamará desde el botón)
-        #if !UNITY_ANDROID && !UNITY_IOS
-            if (Input.GetButtonDown("Jump") && enPiso)
-                Saltar();
-        #endif
+#if !UNITY_ANDROID && !UNITY_IOS
+        if (Input.GetButtonDown("Jump") && enPiso)
+            Saltar();
+#endif
 
         // Girar el personaje
         if (tieneArma)
@@ -175,41 +175,41 @@ public class personaje : MonoBehaviour
         }
 
         if (tieneArma)
+        {
+#if !UNITY_ANDROID && !UNITY_IOS
+            // Posición de la mira (solo PC)
+            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mouseWorld.z = -30f;
+            mira.position = mouseWorld;
+            refManoArma.position = mira.position;
+
+            Vector3 distancia = transform.position - mira.position;
+            miraValida = (distancia.magnitude > 10f);
+            mira.gameObject.SetActive(miraValida);
+
+            // 🔥 Solo disparar si el clic NO es sobre UI
+            bool clickSobreUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+
+            if (!clickSobreUI)
             {
-            #if !UNITY_ANDROID && !UNITY_IOS
-                // Posición de la mira (solo PC)
-                Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                mouseWorld.z = -30f;
-                mira.position = mouseWorld;
-                refManoArma.position = mira.position;
-
-                Vector3 distancia = transform.position - mira.position;
-                miraValida = (distancia.magnitude > 10f);
-                mira.gameObject.SetActive(miraValida);
-
-                // 🔥 Solo disparar si el clic NO es sobre UI
-                bool clickSobreUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-
-                if (!clickSobreUI)
+                if (Input.GetButtonDown("Fire1") && miraValida)
                 {
-                    if (Input.GetButtonDown("Fire1") && miraValida)
+                    if (cantBalas > 0) disparar();
+                    else
                     {
-                        if (cantBalas > 0) disparar();
-                        else
-                        {
-                            textoContBalas.color = Color.red;
-                            textoContBalas.fontSize = 50;
-                            NuevoSonido(sinBalas, refManoArma.position, 1f);
-                        }
-                    }
-
-                    if (Input.GetButtonDown("Fire2") && miraValida)
-                    {
-                        ArrojarGranada();
+                        textoContBalas.color = Color.red;
+                        textoContBalas.fontSize = 50;
+                        NuevoSonido(sinBalas, refManoArma.position, 1f);
                     }
                 }
-            #endif
+
+                if (Input.GetButtonDown("Fire2") && miraValida)
+                {
+                    ArrojarGranada();
+                }
             }
+#endif
+        }
 
 
         if (Input.GetKeyDown(KeyCode.P)) cargarPartida();
@@ -389,7 +389,7 @@ public class personaje : MonoBehaviour
 
     void cargarPartida()
     {
-        cantBalas = infoPartidaGuardada.infoShaggy.cantBalas ;
+        cantBalas = infoPartidaGuardada.infoShaggy.cantBalas;
         energiaActual = infoPartidaGuardada.infoShaggy.energiaActual;
         transform.position = infoPartidaGuardada.infoShaggy.posicion;
 
@@ -415,7 +415,6 @@ public class personaje : MonoBehaviour
             zombie.position = infoPartidaGuardada.infoZombies[i++].posicion;
         }
     }
-
     void disparar()
     {
         Vector3 direccion = (mira.position - contArma.position).normalized;
@@ -477,11 +476,11 @@ public class personaje : MonoBehaviour
         // emite sonido 
         NuevoSonido(disparo, refManoArma.position, 1f);
     }
-    
-    void NuevoSonido (GameObject prefab, Vector2 posicion, float duracion = 5f)
+
+    void NuevoSonido(GameObject prefab, Vector2 posicion, float duracion = 5f)
     {
         Destroy(Instantiate(prefab, posicion, Quaternion.identity), duracion);
-    } 
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -500,7 +499,7 @@ public class personaje : MonoBehaviour
             Destroy(collision.gameObject);
             // Mostrar la mira ahora que tenemos arma
             mira.gameObject.SetActive(true);
-            
+
         }
 
         if (collision.gameObject.CompareTag("balas"))
@@ -519,7 +518,26 @@ public class personaje : MonoBehaviour
             NuevoSonido(agarrarCheckpoint, collision.transform.position, 1f);
             Destroy(collision.gameObject);
         }
+
+        if (collision.CompareTag("mar"))
+        {
+            MorirEnMar();
+        }
+    } 
+
+    void MorirEnMar()
+    {
+        // Podés poner aquí tu animación o sonido de muerte
+        Debug.Log("☠️ El personaje cayó al mar");
+
+        // Opción 1: Reiniciar escena completa
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+        // O si preferís: quitar energía o mostrar game over
+        // energiaActual = 0;
+        // anim.SetTrigger("morir");
     }
+
 
     void sacudirCamara(float maximo)
     {
