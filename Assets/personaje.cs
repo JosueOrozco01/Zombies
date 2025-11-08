@@ -55,6 +55,8 @@ public class personaje : MonoBehaviour
 
     public GameObject granada;
     public float fuerzaArrojarGranada = 50f;
+    
+    public GameObject TextoFinal;
 
     [Header("sonidos")]
     public GameObject disparo;
@@ -76,6 +78,12 @@ public class personaje : MonoBehaviour
     [Header("Controles móviles")]
     private bool presionandoIzquierda = false;
     private bool presionandoDerecha = false;
+
+    // cambio de escenas
+    int cuantosZombiesQuedan;
+    float momInicioFadeOut = float.MaxValue;
+    int escenaACargarDespuesDelFadeOut;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -91,6 +99,12 @@ public class personaje : MonoBehaviour
         valorAlfaDeseadoTelaNegra = 0; // transparente
 
         if (infoPartidaGuardada.hayPartidaGuardada) cargarPartida();
+
+        // leemos cuantos zombies hay en esta escena 
+        cuantosZombiesQuedan = 0; 
+        foreach (Transform zombie in GameObject.Find("Zombies").transform) {
+            if (zombie.gameObject.activeSelf) cuantosZombiesQuedan++;
+        }
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
@@ -217,8 +231,14 @@ public class personaje : MonoBehaviour
 
         // se muestre la cantidad de balas
         textoContBalas.text = cantBalas.ToString();
+
+        // chequear si es hora de pasar de nivel
+        if (Time.time >momInicioFadeOut) {
+            iniciarFadeOut();
+            momInicioFadeOut = float.MaxValue;
+        }
         
-        
+
     }
     public void PresionarIzquierda()
     {
@@ -461,6 +481,14 @@ public class personaje : MonoBehaviour
 
                             NuevoSonido(ZombieMuere, transform.position, 1f);
 
+                            cuantosZombiesQuedan--;
+
+                            if (cuantosZombiesQuedan == 0) {
+                                //mostrar cartel
+                                TextoFinal.SetActive(true);
+                                momInicioFadeOut = Time.time + 3f;
+                            }
+
                             break; // Detenemos el loop, ya mató al zombie
                         }
                     }
@@ -566,6 +594,7 @@ public class personaje : MonoBehaviour
 
             // comienza el proceso de la muerte 
             anim.SetTrigger("muere");
+            
         }
         else
         {
