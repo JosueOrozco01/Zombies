@@ -9,6 +9,7 @@ TagManager:
   - cabezaZombie
   - balas
   - checkpoint
+  - mar
   layers:
   - Default
   - TransparentFX

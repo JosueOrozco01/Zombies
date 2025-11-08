@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-public static class infoPartidaGuardada
+namespace GameplayAdaptado
 {
+    public static class infoPartidaGuardada
+    {
     public static bool hayPartidaGuardada = false;
 
     public static class infoShaggy
@@ -29,4 +31,5 @@ public static class infoPartidaGuardada
     }
 
     public static List<TipoInfoZombie> infoZombies = new List<TipoInfoZombie>();
+    }
 }

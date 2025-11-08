@@ -1215,14 +1215,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5995104471083773135}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b752160c49677d247b347594e8fd4cfc, type: 3}
+  m_Script: {fileID: 11500000, guid: 2f5c7bd98a2316044a2c5ea54f47d1d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   velCaminata: 10
-  umbralVelicidad: 0
-  prefabMuerto: {fileID: 0}
+  umbralVelicidad: 20
+  prefabMuerto: {fileID: 7384805888470946055, guid: 980c076d8d890dc4ab857d2ed9299e10, type: 3}
   magnitudVueloCabeza: 300
-  Shaggy: {fileID: 0}
+  Shaggy: {fileID: 1656627112377511874, guid: ab11677a09ab7a643aa2439f109dc439, type: 3}
   refPiso: {fileID: 6770068917517431877}
   vivo: 1
 --- !u!58 &2643390887931635295
