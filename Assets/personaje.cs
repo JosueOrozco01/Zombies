@@ -211,12 +211,14 @@ public class personaje : MonoBehaviour
 #endif
         }
 
+        if (Input.GetKeyDown(KeyCode.O)) SceneManager.LoadScene(escenaActual());
+        if (Input.GetKeyDown(KeyCode.P)) SceneManager.LoadScene(escenaActual() + 1);
 
-        if (Input.GetKeyDown(KeyCode.P)) cargarPartida();
-        if (Input.GetKeyDown(KeyCode.O)) guardarPartida();
 
         // se muestre la cantidad de balas
         textoContBalas.text = cantBalas.ToString();
+        
+        
     }
     public void PresionarIzquierda()
     {
@@ -296,11 +298,16 @@ public class personaje : MonoBehaviour
         telaNegra.color = new Color(0, 0, 0, valorAlfa);
 
         // reiniciar escena cuando se complete fade out 
-        if (valorAlfa > 0.9f && valorAlfaDeseadoTelaNegra == 1) SceneManager.LoadScene("Scenes/Escena");
+        if (valorAlfa > 0.9f && valorAlfaDeseadoTelaNegra == 1)
+            SceneManager.LoadScene(escenaActual());
 
         // vuelve el contador de balas a su estilo normal 
         textoContBalas.color = Color.Lerp(textoContBalas.color, Color.white, 0.1f);
         textoContBalas.fontSize = Mathf.Lerp(textoContBalas.fontSize, 36, 0.1f);
+    }
+    
+    int escenaActual() {
+        return SceneManager.GetActiveScene().buildIndex;
     }
 
     private void LateUpdate()
