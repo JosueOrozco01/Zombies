@@ -319,7 +319,7 @@ public class personaje : MonoBehaviour
 
         // reiniciar escena cuando se complete fade out 
         if (valorAlfa > 0.9f && valorAlfaDeseadoTelaNegra == 1)
-            SceneManager.LoadScene(escenaActual());
+            SceneManager.LoadScene(escenaACargarDespuesDelFadeOut);
 
         // vuelve el contador de balas a su estilo normal 
         textoContBalas.color = Color.Lerp(textoContBalas.color, Color.white, 0.1f);
@@ -487,6 +487,8 @@ public class personaje : MonoBehaviour
                                 //mostrar cartel
                                 TextoFinal.SetActive(true);
                                 momInicioFadeOut = Time.time + 3f;
+                                escenaACargarDespuesDelFadeOut = escenaActual() + 1;
+                                infoPartidaGuardada.hayPartidaGuardada = false;
                             }
 
                             break; // Detenemos el loop, ya mató al zombie
@@ -594,7 +596,7 @@ public class personaje : MonoBehaviour
 
             // comienza el proceso de la muerte 
             anim.SetTrigger("muere");
-            
+            escenaACargarDespuesDelFadeOut = escenaActual();
         }
         else
         {
@@ -614,4 +616,11 @@ public class personaje : MonoBehaviour
     {
         valorAlfaDeseadoTelaNegra = 1; // fade out
     }
+
+        // Botón Back -> regresar al menú principal
+    public void RegresarMenu()
+    {
+        SceneManager.LoadScene("Scenes/MenuPrincipal");
+    }
+
 }

@@ -162,8 +162,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 5792703274263057828}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4837bbb61fccbbc4d86191125176d5ad, type: 3}
+  m_Script: {fileID: 11500000, guid: adbfd0687817543488e8b88436b575ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tiempo: 3
+  tiempo: 4
   prefabExplosion: {fileID: 1000011797152326, guid: acf39d9f4addf294d93fa56fa373961b, type: 3}
