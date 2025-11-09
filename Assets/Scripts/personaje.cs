@@ -109,11 +109,16 @@ public class personaje : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
 
-        // Fondo sonoro
-        GameObject bgm = Instantiate(FondoSonido, Vector3.zero, Quaternion.identity);
-        DontDestroyOnLoad(bgm);
-        bgm.GetComponent<AudioSource>().loop = true;
-        bgm.GetComponent<AudioSource>().Play();
+        // Fondo sonoro — solo si no existe uno ya
+        if (GameObject.FindGameObjectWithTag("FondoSonido") == null)
+        {
+            GameObject bgm = Instantiate(FondoSonido, Vector3.zero, Quaternion.identity);
+            bgm.tag = "FondoSonido"; // 👈 Asegúrate de darle un tag
+            DontDestroyOnLoad(bgm);
+            bgm.GetComponent<AudioSource>().loop = true;
+            bgm.GetComponent<AudioSource>().Play();
+        }
+
 
 #if UNITY_ANDROID || UNITY_IOS
             btnJump.SetActive(true);
@@ -620,7 +625,13 @@ public class personaje : MonoBehaviour
         // Botón Back -> regresar al menú principal
     public void RegresarMenu()
     {
+        // Apagar música de fondo antes de volver al menú
+        GameObject bgm = GameObject.FindGameObjectWithTag("FondoSonido");
+        if (bgm != null)
+        {
+            Destroy(bgm);
+        }
+
         SceneManager.LoadScene("Scenes/MenuPrincipal");
     }
-
 }

@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 2958052585283063913}
   - component: {fileID: 4194107244581400292}
   m_Layer: 0
-  m_Name: Shaggy Salta
-  m_TagString: Untagged
+  m_Name: Fondo Sonido Menu1
+  m_TagString: FondoSonido
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43,11 +43,11 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: d32c3cafc01227146a8056be4ca13794, type: 3}
+  m_Resource: {fileID: 8300000, guid: 3fa6be321538c6746bcd7e14288566ef, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
