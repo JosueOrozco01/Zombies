@@ -1,0 +1,51 @@
+@startuml
+' Diagrama de Paquetes
+package "GameplayAdaptado" {
+    package "Contratos y abstracciones" {
+        [IEntidad]
+        [EntidadBase]
+        [IPersistible]
+        [IAudioService]
+    }
+
+    package "Fabricas" {
+        [IGameObjectFactory]
+        [DefaultGameObjectFactory]
+        [ExplosionFactory]
+        [ParticulaFactory]
+        [GranadaFactory]
+    }
+
+    package "Gameplay adaptado" {
+        [personaje]
+        [zombies]
+        [Granada]
+    }
+
+    package "Servicios" {
+        [AudioService]
+        [CoroutineRunner]
+        [AudioSourceManager]
+    }
+
+    package "UI" {
+        [SettingsMenuAdaptado]
+    }
+
+    package "Sistemas de persistencia" {
+        [AudioSettingsRepository]
+        [infoPartidaGuardada]
+    }
+}
+
+' Dependencias principales
+[personaje] --> [EntidadBase]
+[zombies] --> [EntidadBase]
+[personaje] --> [IPersistible]
+[SettingsMenuAdaptado] --> [IAudioService]
+[DefaultGameObjectFactory] --> [IGameObjectFactory]
+[AudioService] --> [AudioSettingsRepository]
+[personaje] --> [ParticulaFactory]
+[Granada] --> [ExplosionFactory]
+
+@enduml

@@ -193,6 +193,19 @@ public class personaje : MonoBehaviour
             if (movX > 0) transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
         }
 
+        // Mostrar u ocultar la mira según si tiene arma
+        if (tieneArma)
+        {
+            if (!mira.gameObject.activeSelf)
+                mira.gameObject.SetActive(true);
+        }
+        else
+        {
+            if (mira.gameObject.activeSelf)
+                mira.gameObject.SetActive(false);
+        }
+
+
         if (tieneArma)
         {
 #if !UNITY_ANDROID && !UNITY_IOS
@@ -230,6 +243,26 @@ public class personaje : MonoBehaviour
 #endif
         }
 
+        #if UNITY_ANDROID || UNITY_IOS
+            // Control táctil para mover la mira
+            if (Input.touchCount > 0)
+            {
+                Touch toque = Input.GetTouch(0);
+
+                // Convertir la posición del toque a coordenadas del mundo
+                Vector3 posToque = Camera.main.ScreenToWorldPoint(toque.position);
+                posToque.z = -30f;
+                mira.position = posToque;
+                refManoArma.position = mira.position;
+
+                Vector3 distancia = transform.position - mira.position;
+                miraValida = (distancia.magnitude > 10f);
+                mira.gameObject.SetActive(miraValida);
+            }
+            #endif
+
+
+
         if (Input.GetKeyDown(KeyCode.O)) SceneManager.LoadScene(escenaActual());
         if (Input.GetKeyDown(KeyCode.P)) SceneManager.LoadScene(escenaActual() + 1);
 
@@ -238,13 +271,13 @@ public class personaje : MonoBehaviour
         textoContBalas.text = cantBalas.ToString();
 
         // chequear si es hora de pasar de nivel
-        if (Time.time >momInicioFadeOut) {
+        if (Time.time > momInicioFadeOut)
+        {
             iniciarFadeOut();
             momInicioFadeOut = float.MaxValue;
         }
-        
-
     }
+    
     public void PresionarIzquierda()
     {
         presionandoIzquierda = true;
@@ -290,8 +323,14 @@ public class personaje : MonoBehaviour
     public void BotonGranada()
     {
         Debug.Log("Botón GRANADA presionado");
+
+    #if UNITY_ANDROID || UNITY_IOS
+        miraValida = true; // asegúrate que no bloquee
+    #endif
+
         if (miraValida) ArrojarGranada();
     }
+
 
     void actualizarDisplay()
     {
@@ -528,7 +567,6 @@ public class personaje : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("arma"))
         {
-            // agarrar el arma
             tieneArma = true;
             contArma.gameObject.SetActive(true);
             cantBalas += 8;
@@ -537,12 +575,14 @@ public class personaje : MonoBehaviour
             textoContBalas.fontSize = 50;
 
             NuevoSonido(agarrarMuniciones, collision.transform.position, 1f);
-
             Destroy(collision.gameObject);
-            // Mostrar la mira ahora que tenemos arma
-            mira.gameObject.SetActive(true);
 
+            // 👇 Mostrar mira y habilitarla
+            mira.gameObject.SetActive(true);
+            miraValida = true;
         }
+
+
 
         if (collision.gameObject.CompareTag("balas"))
         {

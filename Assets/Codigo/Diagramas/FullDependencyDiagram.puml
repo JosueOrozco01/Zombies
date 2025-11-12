@@ -1,0 +1,72 @@
+@startuml
+' Full dependency / package diagram for Assets/Codigo
+skinparam packageStyle rect
+
+package "GameplayAdaptado" {
+  package "Contratos y abstracciones" {
+    [IEntidad]
+    [IPersistible]
+    [IAudioService]
+    [IGameObjectFactory]
+  }
+
+  package "Servicios" {
+    [AudioService]
+    [AudioSourceManager]
+    [AudioSettingsRepository]
+    [CoroutineRunner]
+    [GameFactoryProvider]
+  }
+
+  package "Fabricas" {
+    [DefaultGameObjectFactory]
+    [DefaultExplosionFactory]
+    [DefaultParticulaFactory]
+    [DefaultGranadaFactory]
+    [DefaultAudioComponentFactory]
+    [NetworkAudioComponentFactory]
+    [GameSoundEffectFactory]
+  }
+
+  package "Gameplay adaptado" {
+    [personaje]
+    [zombies]
+    [Granada]
+    [SettingsMenuAdaptado]
+  }
+
+  package "Persistencia" {
+    [infoPartidaGuardada]
+    [AudioSettingsRepository]
+  }
+
+  package "Fábricas-legacy" {
+    [ExplosionFactory]
+    [ParticulaFactory]
+    [GranadaFactory]
+  }
+}
+
+' Dependencies between packages
+[personaje] --> [DefaultGameObjectFactory]
+[personaje] --> [AudioService]
+[personaje] --> [infoPartidaGuardada]
+[zombies] --> [DefaultGameObjectFactory]
+[Granada] --> [DefaultGameObjectFactory]
+[SettingsMenuAdaptado] --> [AudioService]
+
+' Service dependencies
+[AudioService] --> [AudioSourceManager]
+[AudioService] --> [AudioSettingsRepository]
+[DefaultAudioComponentFactory] --> [AudioSourceManager]
+[DefaultAudioComponentFactory] --> [AudioSettingsRepository]
+[DefaultGameObjectFactory] --> [DefaultExplosionFactory]
+[DefaultGameObjectFactory] --> [DefaultParticulaFactory]
+[DefaultGameObjectFactory] --> [DefaultGranadaFactory]
+
+' Legacy references
+[personaje] ..> [ExplosionFactory]
+[personaje] ..> [ParticulaFactory]
+[personaje] ..> [GranadaFactory]
+
+@enduml
