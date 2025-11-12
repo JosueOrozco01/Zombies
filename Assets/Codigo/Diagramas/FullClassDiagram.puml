@@ -1,122 +1,60 @@
 @startuml
-' Full class diagram for Assets/Codigo
-' NOTE: Render with PlantUML
+"Full class diagram (unificado)"
 skinparam classAttributeIconSize 0
 
-package "Contratos y abstracciones" {
-  interface IEntidad
-  interface IPersistible
-  class EntidadBase {
-    - EstaViva: bool {protected}
-    + RecibirDaño(cantidad:int, posicion:Vector2)
-    + Morir(direccion:Vector3)
+package "GameplayAdaptado" {
+  package "Contratos" {
+    interface ICompositionRoot
+    interface IGameObjectFactory
+    interface IExplosionFactory
+    interface IParticulaFactory
+    interface IGranadaFactory
+    interface IAudioService
+    interface IEntidad
   }
 
-  interface IAudioPlayer
-  interface IAudioVolumeControl
-  interface IAudioRegistry
-  interface IAudioService
-  interface IGameObjectFactory
-  interface IExplosionFactory
-  interface IParticulaFactory
-  interface IGranadaFactory
-  interface ISoundEffectFactory
-}
-
-package "Servicios" {
-  class AudioSourceManager
-  class AudioSettingsRepository
-  class CoroutineRunner
-  class AudioService {
-    + instance: IAudioService
-    + RegisterAudio(key:String, source:AudioSource)
-    + GetVolume(key:String):float
-    + SetVolume(key:String, float)
-    + Play(key:String)
+  package "Implementaciones" {
+    class CompositionRoot
+    class DefaultGameObjectFactory
+    class DefaultExplosionFactory
+    class DefaultParticulaFactory
+    class DefaultGranadaFactory
+    class AudioService_Mono
+    class SimpleAudioService
+    class CoroutineRunner
+    abstract class EntidadBase
+    class PersonajeRefactor
+    class ZombiesRefactor
+    class GranadaRefactor
+    class ValidateCodigo
+    class GameFactoryProvider
+    class infoPartidaGuardada
   }
-  class GameFactoryProvider
 }
 
-package "Fabricas" {
-  class DefaultGameObjectFactory
-  class DefaultExplosionFactory
-  class DefaultParticulaFactory
-  class DefaultGranadaFactory
-  class DefaultAudioComponentFactory
-  class DefaultAudioPlayer
-  class DefaultVolumeControl
-  class DefaultAudioRegistry
-  class NetworkAudioComponentFactory
-  class NetworkAudioPlayer
-  class NetworkVolumeControl
-  class NetworkAudioRegistry
-  class GameSoundEffectFactory
-  class GameAudioClip
-}
-
-package "Gameplay adaptado" {
-  class personaje
-  class zombies
-  class Granada
-  class SettingsMenuAdaptado
-}
-
-package "Fábricas-legacy" {
-  class ExplosionFactory
-  class ParticulaFactory
-  class GranadaFactory
-}
-
-package "Persistencia" {
-  class infoPartidaGuardada
-}
-
-' Relationships: inheritance / implementation
-IEntidad <|.. EntidadBase
-EntidadBase <|-- personaje
-EntidadBase <|-- zombies
-IAudioService <|.. AudioService
-IAudioPlayer <|.. DefaultAudioPlayer
-IAudioVolumeControl <|.. DefaultVolumeControl
-IAudioRegistry <|.. DefaultAudioRegistry
+' Relationships and composition
 IGameObjectFactory <|.. DefaultGameObjectFactory
 IExplosionFactory <|.. DefaultExplosionFactory
 IParticulaFactory <|.. DefaultParticulaFactory
 IGranadaFactory <|.. DefaultGranadaFactory
-ISoundEffectFactory <|.. GameSoundEffectFactory
+IAudioService <|.. AudioService_Mono
+IAudioService <|.. SimpleAudioService
+ICompositionRoot <|.. CompositionRoot
+IEntidad <|.. EntidadBase
+EntidadBase <|-- PersonajeRefactor
+EntidadBase <|-- ZombiesRefactor
 
-' Service composition
-AudioService *-- AudioSourceManager
-AudioService *-- AudioSettingsRepository
-AudioService o-- DefaultAudioComponentFactory
-DefaultAudioComponentFactory *-- DefaultAudioPlayer
-DefaultAudioComponentFactory *-- DefaultVolumeControl
-DefaultAudioComponentFactory *-- DefaultAudioRegistry
+CompositionRoot *-- DefaultGameObjectFactory
+CompositionRoot o-- AudioService_Mono
+CompositionRoot o-- SimpleAudioService
+CompositionRoot ..> GameFactoryProvider
 
-' Factories composition
-DefaultGameObjectFactory o-- DefaultExplosionFactory
-DefaultGameObjectFactory o-- DefaultParticulaFactory
-DefaultGameObjectFactory o-- DefaultGranadaFactory
+PersonajeRefactor ..> IGameObjectFactory
+PersonajeRefactor ..> IAudioService
+PersonajeRefactor ..> infoPartidaGuardada
+ZombiesRefactor ..> IGameObjectFactory
+GranadaRefactor ..> IExplosionFactory
 
-' Network factory family
-NetworkAudioComponentFactory *-- NetworkAudioPlayer
-NetworkAudioComponentFactory *-- NetworkVolumeControl
-NetworkAudioComponentFactory *-- NetworkAudioRegistry
-
-' Sound effect factory
-GameSoundEffectFactory *-- GameAudioClip
-
-' Usage edges (high level)
-personaje ..> AudioService : RegisterFromGameObject / uses
-personaje ..> DefaultGameObjectFactory : Particula/Granada/Explosion
-zombies ..> DefaultGameObjectFactory : uses (prefab)
-Granada ..> DefaultGameObjectFactory : Explosion
-SettingsMenuAdaptado ..> AudioService : Get/SetVolume
-infoPartidaGuardada ..> personaje : persisted data
-
-' Legacy static factories still present
-personaje ..> ExplosionFactory : legacy calls
-personaje ..> ParticulaFactory
-personaje ..> GranadaFactory
+ValidateCodigo --> CompositionRoot
 
 @enduml

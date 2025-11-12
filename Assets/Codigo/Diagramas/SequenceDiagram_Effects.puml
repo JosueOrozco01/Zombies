@@ -1,8 +1,8 @@
 @startuml
-' Diagrama de Secuencia: Creación y Gestión de Efectos
+' Diagrama de Secuencia: Creación y Gestión de Efectos (refactor)
 actor Jugador
-participant "Personaje" as P
-participant "GameFactoryProvider" as GFP
+participant "PersonajeRefactor" as P
+participant "CompositionRoot" as CRoot
 participant "DefaultGameObjectFactory" as Factory
 participant "DefaultParticulaFactory" as PF
 participant "CoroutineRunner" as CR
@@ -10,10 +10,10 @@ participant "CoroutineRunner" as CR
 Jugador -> P: Dispara
 activate P
 
-P -> GFP: Instance.ParticulaFactory
-activate GFP
-GFP --> P: factory
-deactivate GFP
+P -> CRoot: Resolve.ParticulaFactory()
+activate CRoot
+CRoot --> P: IParticulaFactory
+deactivate CRoot
 
 P -> PF: EmitirParticula(pos, rot, 2f)
 activate PF
@@ -27,10 +27,10 @@ deactivate CR
 PF --> P: particula
 deactivate PF
 
-P -> GFP: Instance.ExplosionFactory
-activate GFP
-GFP --> P: factory
-deactivate GFP
+P -> CRoot: Resolve.ExplosionFactory()
+activate CRoot
+CRoot --> P: IExplosionFactory
+deactivate CRoot
 
 P -> Factory: CrearExplosion(pos, rot)
 activate Factory

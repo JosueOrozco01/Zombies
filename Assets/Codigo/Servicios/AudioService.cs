@@ -5,7 +5,9 @@ namespace GameplayAdaptado
 {
     // Servicio de Audio adaptado: mapea nombres a AudioSource existentes y proporciona
     // una interfaz limpia para gestionar audio en el juego adaptado.
-    public class AudioService : MonoBehaviour
+    // Implementamos la interfaz canónica GameplayAdaptado.IAudioService
+    // para ser inyectable desde GameBootstrapper y compatible con el código refactorizado.
+    public class AudioService : MonoBehaviour, GameplayAdaptado.IAudioService
     {
         public static AudioService instance;
 

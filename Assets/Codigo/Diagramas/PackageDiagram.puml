@@ -1,51 +1,61 @@
 @startuml
-' Diagrama de Paquetes
+' Diagrama de Paquetes - Vista de Assets/Codigo
 package "GameplayAdaptado" {
     package "Contratos y abstracciones" {
-        [IEntidad]
-        [EntidadBase]
-        [IPersistible]
-        [IAudioService]
-    }
-
-    package "Fabricas" {
+        [ICompositionRoot]
         [IGameObjectFactory]
-        [DefaultGameObjectFactory]
-        [ExplosionFactory]
-        [ParticulaFactory]
-        [GranadaFactory]
+        [IExplosionFactory]
+        [IParticulaFactory]
+        [IGranadaFactory]
+        [IAudioService]
+        [IEntidad]
     }
 
-    package "Gameplay adaptado" {
-        [personaje]
-        [zombies]
-        [Granada]
+    package "Fábricas (Fábricas / Fabricas)" {
+        [DefaultGameObjectFactory]
+        [DefaultExplosionFactory]
+        [DefaultParticulaFactory]
+        [DefaultGranadaFactory]
+        [GameFactoryProvider]
+    }
+
+    package "Entidades / Gameplay" {
+        [PersonajeRefactor]
+        [ZombiesRefactor]
+        [GranadaRefactor]
+        [EntidadBase]
     }
 
     package "Servicios" {
-        [AudioService]
+        [AudioService_Mono]
+        [SimpleAudioService]
         [CoroutineRunner]
         [AudioSourceManager]
     }
 
-    package "UI" {
+    package "Editor / Herramientas" {
+        [ValidateCodigo]
         [SettingsMenuAdaptado]
     }
 
-    package "Sistemas de persistencia" {
+    package "Persistencia" {
         [AudioSettingsRepository]
         [infoPartidaGuardada]
     }
 }
 
-' Dependencias principales
-[personaje] --> [EntidadBase]
-[zombies] --> [EntidadBase]
-[personaje] --> [IPersistible]
+' Dependencias principales (alto nivel)
+[PersonajeRefactor] --> [EntidadBase]
+[ZombiesRefactor] --> [EntidadBase]
+[PersonajeRefactor] --> [infoPartidaGuardada]
 [SettingsMenuAdaptado] --> [IAudioService]
 [DefaultGameObjectFactory] --> [IGameObjectFactory]
-[AudioService] --> [AudioSettingsRepository]
-[personaje] --> [ParticulaFactory]
-[Granada] --> [ExplosionFactory]
+[AudioService_Mono] --> [AudioSettingsRepository]
+[PersonajeRefactor] --> [DefaultParticulaFactory]
+[GranadaRefactor] --> [DefaultExplosionFactory]
+
+note top: Este diagrama agrupa los artefactos dentro
+note top: de la carpeta Assets/Codigo; se muestran
+note top: implementaciones canónicas y utilidades de editor.
 
 @enduml

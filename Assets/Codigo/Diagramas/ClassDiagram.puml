@@ -1,124 +1,54 @@
 @startuml
-' Diagrama de Clases: Factories y Abstract Factory
-package "GameplayAdaptado.Factories" {
-    interface "IGameObjectFactory" {
-        +ExplosionFactory: IExplosionFactory
-        +ParticulaFactory: IParticulaFactory
-        +GranadaFactory: IGranadaFactory
-    }
+ ' Diagrama de Clases (adaptado): Factories, Servicios, Entidades y Bootstrap
+ package "GameplayAdaptado" {
+     package "Contratos" {
+         interface ICompositionRoot
+         interface IGameObjectFactory
+         interface IExplosionFactory
+         interface IParticulaFactory
+         interface IGranadaFactory
+         interface IAudioService
+         interface IEntidad
+     }
 
-    interface "IExplosionFactory" {
-        +CrearExplosion(posicion: Vector3, rotacion: Quaternion): GameObject
-    }
+     package "Implementaciones" {
+         class CompositionRoot
+         class DefaultGameObjectFactory
+         class DefaultExplosionFactory
+         class DefaultParticulaFactory
+         class DefaultGranadaFactory
+         class AudioService (Mono)
+         class SimpleAudioService
+         class CoroutineRunner
+         abstract class EntidadBase
+         class PersonajeRefactor
+         class ZombiesRefactor
+         class GranadaRefactor
+         class ValidateCodigo (Editor)
+         class GameFactoryProvider
+         class infoPartidaGuardada
+     }
 
-    interface "IParticulaFactory" {
-        +EmitirParticula(posicion: Vector3, rotacion: Quaternion, duracion: float): GameObject
-    }
+     ' Relacionamientos
+     IGameObjectFactory <|.. DefaultGameObjectFactory
+     IExplosionFactory <|.. DefaultExplosionFactory
+     IParticulaFactory <|.. DefaultParticulaFactory
+     IGranadaFactory <|.. DefaultGranadaFactory
+     IAudioService <|.. AudioService
+     IAudioService <|.. SimpleAudioService
+     ICompositionRoot <|.. CompositionRoot
+     IEntidad <|.. EntidadBase
+     EntidadBase <|-- PersonajeRefactor
+     EntidadBase <|-- ZombiesRefactor
 
-    interface "IGranadaFactory" {
-        +CrearGranada(posicion: Vector3, rotacion: Quaternion): GameObject
-    }
-
-    class "DefaultGameObjectFactory" {
-        -explosionFactory: IExplosionFactory
-        -particulaFactory: IParticulaFactory
-        -granadaFactory: IGranadaFactory
-    }
-
-    class "DefaultExplosionFactory" {
-        -prefab: GameObject
-    }
-
-    class "DefaultParticulaFactory" {
-        -prefab: GameObject
-        -activeParticles: Dictionary<GameObject, Coroutine>
-    }
-
-    class "DefaultGranadaFactory" {
-        -prefab: GameObject
-    }
-
-    IGameObjectFactory <|.. DefaultGameObjectFactory
-    IExplosionFactory <|.. DefaultExplosionFactory
-    IParticulaFactory <|.. DefaultParticulaFactory
-    IGranadaFactory <|.. DefaultGranadaFactory
-    DefaultGameObjectFactory o-- DefaultExplosionFactory
-    DefaultGameObjectFactory o-- DefaultParticulaFactory
-    DefaultGameObjectFactory o-- DefaultGranadaFactory
-}
-
-' Servicios
-package "GameplayAdaptado.Services" {
-    interface "IAudioService" {
-        +GetVolume(key: string): float
-        +SetVolume(key: string, value: float): void
-        +Play(key: string): void
-        +Stop(key: string): void
-    }
-
-    class "AudioService" {
-        -sourceManager: AudioSourceManager
-        -settingsRepository: AudioSettingsRepository
-    }
-
-    class "CoroutineRunner" {
-        +{static} Run(routine: IEnumerator): Coroutine
-        +{static} Stop(routine: Coroutine): void
-    }
-
-    IAudioService <|.. AudioService
-}
-
-' Entidades
-package "GameplayAdaptado.Entities" {
-    abstract "EntidadBase" {
-        #EstaViva: bool
-        +RecibirDaño(cantidad: int, impacto: Vector2)
-        +Morir(direccion: Vector3)
-    }
-
-    interface "IEntidad" {
-        +RecibirDaño(cantidad: int, impacto: Vector2)
-        +Morir(direccion: Vector3)
-    }
-
-    class "Personaje" {
-        -vida: int
-        -municiones: int
-        +Disparar()
-        +ArrojarGranada()
-    }
-
-    class "Zombies" {
-        -comportamiento: TipoComportamiento
-        -velCaminata: float
-        +MordidaValida()
-    }
-
-    IEntidad <|.. EntidadBase
-    EntidadBase <|-- Personaje
-    EntidadBase <|-- Zombies
-}
-
-' Sistema de Persistencia
-package "GameplayAdaptado.Persistence" {
-    interface "IPersistible" {
-        +GuardarEstado()
-        +CargarEstado()
-    }
-
-    class "InfoPartidaGuardada" {
-        +infoZombies: ZombieInfo[]
-        +infoPuntos: int
-        +infoMuniciones: int
-    }
-
-    class "AudioSettingsRepository" {
-        +LoadVolume(key: string): float
-        +SaveVolume(key: string, value: float)
-    }
-
-    IPersistible <|.. Personaje
-}
+     CompositionRoot --> DefaultGameObjectFactory : creates
+     CompositionRoot --> AudioService : prefers
+     CompositionRoot --> SimpleAudioService : fallback
+     CompositionRoot ..> GameFactoryProvider : uses
+     ValidateCodigo --> CompositionRoot : validates
+     PersonajeRefactor ..> infoPartidaGuardada : persists
+     PersonajeRefactor ..> IGameObjectFactory : uses
+     PersonajeRefactor ..> IAudioService : uses
+ }
 
 @enduml

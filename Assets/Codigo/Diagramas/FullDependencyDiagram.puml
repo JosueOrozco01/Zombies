@@ -3,19 +3,21 @@
 skinparam packageStyle rect
 
 package "GameplayAdaptado" {
-  package "Contratos y abstracciones" {
-    [IEntidad]
-    [IPersistible]
-    [IAudioService]
+  package "Contratos" {
+    [ICompositionRoot]
     [IGameObjectFactory]
+    [IExplosionFactory]
+    [IParticulaFactory]
+    [IGranadaFactory]
+    [IAudioService]
   }
 
   package "Servicios" {
-    [AudioService]
+    [AudioService_Mono]
+    [SimpleAudioService]
     [AudioSourceManager]
     [AudioSettingsRepository]
     [CoroutineRunner]
-    [GameFactoryProvider]
   }
 
   package "Fabricas" {
@@ -23,27 +25,18 @@ package "GameplayAdaptado" {
     [DefaultExplosionFactory]
     [DefaultParticulaFactory]
     [DefaultGranadaFactory]
-    [DefaultAudioComponentFactory]
-    [NetworkAudioComponentFactory]
-    [GameSoundEffectFactory]
   }
 
-  package "Gameplay adaptado" {
-    [personaje]
-    [zombies]
-    [Granada]
+  package "Gameplay" {
+    [PersonajeRefactor]
+    [ZombiesRefactor]
+    [GranadaRefactor]
     [SettingsMenuAdaptado]
   }
 
   package "Persistencia" {
     [infoPartidaGuardada]
     [AudioSettingsRepository]
-  }
-
-  package "Fábricas-legacy" {
-    [ExplosionFactory]
-    [ParticulaFactory]
-    [GranadaFactory]
   }
 }
 

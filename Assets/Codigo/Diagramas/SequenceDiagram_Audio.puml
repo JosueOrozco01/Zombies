@@ -2,7 +2,7 @@
 ' Diagrama de Secuencia: Configuración de Audio
 actor Usuario
 participant "SettingsMenuAdaptado" as UI
-participant "AudioService" as AS
+participant "AudioService_Mono|SimpleAudioService" as AS
 participant "AudioSettingsRepository" as AR
 participant "AudioSourceManager" as AM
 
@@ -11,13 +11,11 @@ activate UI
 
 UI -> AS: SetVolume("disparo", 0.8f)
 activate AS
-
 AS -> AR: SaveVolume("disparo", 0.8f)
 activate AR
 AR -> AR: PlayerPrefs.SetFloat()
 AR --> AS: ok
 deactivate AR
-
 AS -> AM: GetComponent<AudioSource>()
 activate AM
 AM --> AS: source
